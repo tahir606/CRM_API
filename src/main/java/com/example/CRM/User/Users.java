@@ -1,4 +1,4 @@
-package com.example.CRM;
+package com.example.CRM.User;
 
 import javax.persistence.*;
 
@@ -12,33 +12,33 @@ public class Users {
     private int userCode;
     @Column(name = "FNAME")
     private String fullName;
-    private @Column(name = "UNAME")
-    String userName;
-    private @Column(name = "Email")
-    String email;
-    private @Column(name = "UPASS")
-    String userPassword;
-    private @Column(name = "NOTE")
-    String note;
-    private @Column(name = "URIGHT")
-    String userRight;
-    private @Column(name = "FREZE")
-    boolean freeze=false;
+    @Column(name = "UNAME")
+    private String userName;
+    @Column(name = "Email")
+    private String email;
+    @Column(name = "UPASS")
+    private String userPassword;
+    @Column(name = "NOTE")
+    private String note;
+    @Column(name = "URIGHT")
+    private String userRight;
+    @Column(name = "FREZE")
+    private boolean freeze = false;
     @Column(name = "ISLOG")
     private int isLog;
-    private @Column(name = "ISEMAIL")
-    boolean isEmail;
+    @Column(name = "ISEMAIL")
+    private boolean isEmail;
 
     public Users() {
     }
 
     public Users(String fullName, String userName, String email, String userPassword, String note, String userRight) {
-        this.fullName=fullName;
-        this.userName=userName;
-        this.email=email;
-        this.userPassword=userPassword;
-        this.note=note;
-        this.userRight=userRight;
+        this.fullName = fullName;
+        this.userName = userName;
+        this.email = email;
+        this.userPassword = userPassword;
+        this.note = note;
+        this.userRight = userRight;
 
     }
 

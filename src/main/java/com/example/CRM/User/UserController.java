@@ -1,4 +1,4 @@
-package com.example.CRM;
+package com.example.CRM.User;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;

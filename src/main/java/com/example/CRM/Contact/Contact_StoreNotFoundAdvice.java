@@ -1,4 +1,4 @@
-package com.example.CRM;
+package com.example.CRM.Contact;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
-public class UserNotFoundAdvice {
+public class Contact_StoreNotFoundAdvice {
     @ResponseBody
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(Contact_StoreNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    String UserNotFoundHandler(UserNotFoundException ex){
+    String UserNotFoundHandler(Contact_StoreNotFoundException ex){
         return ex.getMessage();
     }
 }
