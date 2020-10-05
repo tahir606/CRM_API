@@ -1,5 +1,6 @@
-package com.example.CRM;
+package com.example.CRM.User;
 
+import com.example.CRM.User.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
