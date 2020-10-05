@@ -1,4 +1,4 @@
-package com.example.CRM;
+package com.example.CRM.User;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -14,7 +14,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class    UserController {
 
     private final UserRepository userRepository;
     private final UsersModelAssembler assembler;
@@ -59,7 +59,7 @@ public class UserController {
                     user.setEmail(users.getEmail());
                     user.setFullName(users.getFullName());
                     user.setUserName(users.getUserName());
-                    user.setUserPassword(users.getUserPassword());
+                    user.setPassword(users.getPassword());
                     user.setNote(users.getNote());
                     user.setUserRight(users.getUserRight());
                     return userRepository.save(user);

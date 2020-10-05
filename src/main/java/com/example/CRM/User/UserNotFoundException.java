@@ -1,4 +1,4 @@
-package com.example.CRM;
+package com.example.CRM.User;
 
 public class UserNotFoundException extends RuntimeException{
     UserNotFoundException(int id){

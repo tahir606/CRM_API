@@ -1,44 +1,43 @@
-package com.example.CRM;
+package com.example.CRM.User;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
 public class Users {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "UCODE")
     private int userCode;
     @Column(name = "FNAME")
     private String fullName;
-    private @Column(name = "UNAME")
-    String userName;
-    private @Column(name = "Email")
-    String email;
-    private @Column(name = "UPASS")
-    String userPassword;
-    private @Column(name = "NOTE")
-    String note;
-    private @Column(name = "URIGHT")
-    String userRight;
-    private @Column(name = "FREZE")
-    boolean freeze=false;
+    @Column(name = "UNAME")
+    private String userName;
+    @Column(name = "Email")
+    private String email;
+    @Column(name = "UPASS")
+    private String password ;
+    @Column(name = "NOTE")
+    private String note;
+    @Column(name = "URIGHT")
+    private String userRight;
+    @Column(name = "FREZE")
+    private boolean freeze = false;
     @Column(name = "ISLOG")
     private int isLog;
-    private @Column(name = "ISEMAIL")
-    boolean isEmail;
+    @Column(name = "ISEMAIL")
+    private boolean isEmail;
 
     public Users() {
     }
 
-    public Users(String fullName, String userName, String email, String userPassword, String note, String userRight) {
-        this.fullName=fullName;
-        this.userName=userName;
-        this.email=email;
-        this.userPassword=userPassword;
-        this.note=note;
-        this.userRight=userRight;
+    public Users(String fullName, String userName, String email, String password, String note, String userRight) {
+        this.fullName = fullName;
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
+        this.note = note;
+        this.userRight = userRight;
 
     }
 
@@ -74,12 +73,12 @@ public class Users {
         this.email = email;
     }
 
-    public String getUserPassword() {
-        return userPassword;
+    public String getPassword() {
+        return password;
     }
 
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getNote() {
@@ -129,7 +128,7 @@ public class Users {
                 ", fullName='" + fullName + '\'' +
                 ", userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
-                ", userPassword='" + userPassword + '\'' +
+                ", userPassword='" + password + '\'' +
                 ", note='" + note + '\'' +
                 ", userRight='" + userRight + '\'' +
                 ", freeze=" + freeze +
