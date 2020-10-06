@@ -5,13 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.mail.search.FlagTerm;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -55,14 +61,17 @@ public class EmailSystem {
         msg.setSentDate(new Date(2020 - 8 - 8));
 
         MimeBodyPart messageBodyPart = new MimeBodyPart();
-        messageBodyPart.setContent(emailTickets.getBody(), "text/html");
-
+        String body = emailTickets.getBody();
+        messageBodyPart.setText(body, "utf-8", "html");
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(messageBodyPart);
 
         MimeBodyPart attachPart = new MimeBodyPart();
-        attachPart.attachFile(emailTickets.getAttachment());
-        multipart.addBodyPart(attachPart);
+        if (emailTickets.getAttachment() == null) {
+        } else {
+            attachPart.attachFile(emailTickets.getAttachment());
+            multipart.addBodyPart(attachPart);
+        }
 
         msg.setContent(multipart);
 
@@ -154,20 +163,21 @@ public class EmailSystem {
         emailDBHandler.emailDataInsert(emailTickets);
         autoReply(emailTickets);
     }
+
     public static String autoReplySubject = "Burhani Customer Support - Ticket Number: ";
-    public  static String autoText= "Thank you for contacting Burhani Customer Service.";
+    public static String autoText = "Thank you for contacting Burhani Customer Service.";
+
     private void autoReply(EmailTickets emailTickets) throws IOException, MessagingException {
-        System.out.println("auto text:"+autoText);
+        System.out.println("auto text:" + autoText);
         String body = "<h3>The Ticket Number Issued to you is: <b>" + emailTickets.getCode() + "</b></h3>\n " + autoText;
 
         EmailTickets e = new EmailTickets();
-        e.setSubject(autoReplySubject +emailTickets.getCode());
+        e.setSubject(autoReplySubject + emailTickets.getCode());
         e.setToAddress(emailTickets.getFromAddress());
         e.setBody(body + "<br><br><br>" + "--------In Reply To--------" + "<br><br><h4>Subject:   <b>" + emailTickets.getSubject() + "</b></h4><br><br>" + emailTickets.getBody());
-        e.setAttachment(ATTACH);
+//        e.setAttachment(emailTickets.getAttachment());
         sendmail(e);
     }
-
 
 
     private static String parseMultipart(MimeMultipart mimeMultipart, Address[] fromAddress) throws MessagingException, IOException {
