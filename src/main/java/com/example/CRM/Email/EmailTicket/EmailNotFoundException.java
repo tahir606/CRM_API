@@ -1,6 +1,6 @@
-package com.example.CRM.Email.EmailStore;
+package com.example.CRM.Email.EmailTicket;
 
 public class EmailNotFoundException extends RuntimeException {
-    EmailNotFoundException(int id){
+    public EmailNotFoundException(int id){
         super("Could not found User: " + id);}
 }

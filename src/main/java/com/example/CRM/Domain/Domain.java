@@ -7,29 +7,29 @@ import javax.persistence.*;
 public class Domain {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "domain_code")
-    private int domainCode;
-    @Column(name = "domain_name")
+    @Column(name = "Code")
+    private int code;
+    @Column(name = "Name")
     private String name;
-    @Column(name = "domain_WB")
+    @Column(name = "whiteBlackList")
     private int whiteBlackList;
 
     public Domain(){
 
     }
 
-    public Domain(int domainCode, String name, int whiteBlackList) {
-        this.domainCode = domainCode;
+    public Domain(int code, String name, int whiteBlackList) {
+        this.code = code;
         this.name = name;
         this.whiteBlackList = whiteBlackList;
     }
 
-    public int getDomainCode() {
-        return domainCode;
+    public int getCode() {
+        return code;
     }
 
-    public void setDomainCode(int domainCode) {
-        this.domainCode = domainCode;
+    public void setCode(int domainCode) {
+        this.code = domainCode;
     }
 
     public String getName() {
@@ -51,7 +51,7 @@ public class Domain {
     @Override
     public String toString() {
         return "DomainList{" +
-                "domain_code=" + domainCode +
+                "domain_code=" + code +
                 ", domain_name='" + name + '\'' +
                 ", domain_WB=" + whiteBlackList +
                 '}';

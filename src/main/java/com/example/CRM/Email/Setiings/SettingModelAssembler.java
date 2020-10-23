@@ -1,4 +1,4 @@
-package com.example.CRM.Email.EmailGeneral;
+package com.example.CRM.Email.Setiings;
 
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -9,11 +9,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class EmailGeneralModelAssembler implements RepresentationModelAssembler<EmailGeneral, EntityModel<EmailGeneral>> {
+public class SettingModelAssembler implements RepresentationModelAssembler<EmailSettings, EntityModel<EmailSettings>> {
 
     @Override
-    public EntityModel<EmailGeneral> toModel(EmailGeneral entity) {
+    public EntityModel<EmailSettings> toModel(EmailSettings entity) {
         return EntityModel.of(entity, //
-                WebMvcLinkBuilder.linkTo(methodOn(EmailGeneralController.class).one( entity.getCode())).withSelfRel());
+                WebMvcLinkBuilder.linkTo(methodOn(SettingsController.class).one(entity.getCode())).withSelfRel(),
+                linkTo(methodOn(SettingsController.class).all()).withRel("email_settings"));
     }
 }
