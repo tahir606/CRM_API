@@ -10,10 +10,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class EmailSentModelAssembler implements RepresentationModelAssembler<EmailSent, EntityModel<EmailSent>> {
+
     @Override
     public EntityModel<EmailSent> toModel(EmailSent entity) {
         return EntityModel.of(entity, //
-                WebMvcLinkBuilder.linkTo(methodOn(EmailSentController.class).one( entity.getEmailNo())).withSelfRel(),
-                linkTo(methodOn(EmailSentController.class).all()).withRel("email_sent"));
+                WebMvcLinkBuilder.linkTo(methodOn(EmailSentController.class).one( entity.getCode())).withSelfRel());
     }
 }

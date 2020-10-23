@@ -12,7 +12,7 @@ public class DomainListModelAssembler implements RepresentationModelAssembler<Do
     public EntityModel<Domain> toModel(Domain entity) {
 
         return EntityModel.of(entity ,//
-                WebMvcLinkBuilder.linkTo(methodOn(DomainListController.class).one(entity.getDomainCode())).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(methodOn(DomainListController.class).one(entity.getCode())).withSelfRel(),
                 linkTo(methodOn(DomainListController.class).all()).withRel("domain_list"));
 
     }

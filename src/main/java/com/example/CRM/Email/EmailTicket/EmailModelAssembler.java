@@ -1,4 +1,4 @@
-package com.example.CRM.Email.EmailStore;
+package com.example.CRM.Email.EmailTicket;
 
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -10,10 +10,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class EmailModelAssembler implements RepresentationModelAssembler<EmailTickets, EntityModel<EmailTickets>> {
+
     @Override
     public EntityModel<EmailTickets> toModel(EmailTickets emailTickets) {
         return EntityModel.of(emailTickets, //
-                WebMvcLinkBuilder.linkTo(methodOn(EmailController.class).one(emailTickets.getCode())).withSelfRel(),
-                linkTo(methodOn(EmailController.class).all()).withRel("email_store"));
+                WebMvcLinkBuilder.linkTo(methodOn(EmailTicketController.class).one(emailTickets.getCode())).withSelfRel());
     }
 }

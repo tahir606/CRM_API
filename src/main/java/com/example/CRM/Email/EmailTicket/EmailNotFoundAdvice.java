@@ -1,4 +1,4 @@
-package com.example.CRM.Email.EmailStore;
+package com.example.CRM.Email.EmailTicket;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;

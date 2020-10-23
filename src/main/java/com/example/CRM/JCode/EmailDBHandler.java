@@ -1,139 +1,113 @@
 package com.example.CRM.JCode;
 
-import com.example.CRM.Email.EmailStore.EmailRepository;
-import com.example.CRM.Email.EmailStore.EmailTickets;
+import com.example.CRM.Domain.DomainListRepository;
+import com.example.CRM.Email.Email;
+import com.example.CRM.Email.EmailGeneral.EmailGeneral;
+import com.example.CRM.Email.EmailGeneral.EmailGeneralRepository;
+import com.example.CRM.Email.EmailSent.EmailSent;
+import com.example.CRM.Email.EmailSent.EmailSentRepository;
+import com.example.CRM.Email.EmailTicket.EmailNotFoundException;
+import com.example.CRM.Email.EmailTicket.EmailTicketsRepository;
+import com.example.CRM.Email.EmailTicket.EmailTickets;
+import com.example.CRM.Email.Setiings.EmailSettings;
+import com.example.CRM.Email.Setiings.SettingRepository;
+import com.example.CRM.User.UserNotFoundException;
+import com.example.CRM.User.UserRepository;
+import com.example.CRM.User.Users;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.util.List;
 
 @Service
 public class EmailDBHandler {
-    private final EmailRepository emailRepository;
+    private final EmailTicketsRepository emailTicketsRepository;
+    private final SettingRepository settingRepository;
+    private final EmailSentRepository emailSentRepository;
+    private final EmailGeneralRepository emailGeneralRepository;
+    private final DomainListRepository domainListRepository;
+    private final UserRepository userRepository;
+    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-    public EmailDBHandler(EmailRepository emailRepository) {
-        this.emailRepository = emailRepository;
+    public EmailDBHandler(EmailTicketsRepository emailTicketsRepository, SettingRepository settingRepository, EmailSentRepository emailSentRepository, EmailGeneralRepository emailGeneralRepository, DomainListRepository domainListRepository, UserRepository userRepository) {
+        this.emailTicketsRepository = emailTicketsRepository;
+        this.settingRepository = settingRepository;
+        this.emailSentRepository = emailSentRepository;
+        this.emailGeneralRepository = emailGeneralRepository;
+        this.domainListRepository = domainListRepository;
+        this.userRepository = userRepository;
     }
 
-    //             =new EmailRepository() {
-//         @Override
-//         public List<EmailTickets> findAll() {
-//             return null;
-//         }
-//
-//         @Override
-//         public List<EmailTickets> findAll(Sort sort) {
-//             return null;
-//         }
-//
-//         @Override
-//         public List<EmailTickets> findAllById(Iterable<Integer> iterable) {
-//             return null;
-//         }
-//
-//         @Override
-//         public <S extends EmailTickets> List<S> saveAll(Iterable<S> iterable) {
-//             return null;
-//         }
-//
-//         @Override
-//         public void flush() {
-//
-//         }
-//
-//         @Override
-//         public <S extends EmailTickets> S saveAndFlush(S s) {
-//             return null;
-//         }
-//
-//         @Override
-//         public void deleteInBatch(Iterable<EmailTickets> iterable) {
-//
-//         }
-//
-//         @Override
-//         public void deleteAllInBatch() {
-//
-//         }
-//
-//         @Override
-//         public EmailTickets getOne(Integer integer) {
-//             return null;
-//         }
-//
-//         @Override
-//         public <S extends EmailTickets> List<S> findAll(Example<S> example) {
-//             return null;
-//         }
-//
-//         @Override
-//         public <S extends EmailTickets> List<S> findAll(Example<S> example, Sort sort) {
-//             return null;
-//         }
-//
-//         @Override
-//         public Page<EmailTickets> findAll(Pageable pageable) {
-//             return null;
-//         }
-//
-//         @Override
-//         public <S extends EmailTickets> S save(S s) {
-//             return null;
-//         }
-//
-//         @Override
-//         public Optional<EmailTickets> findById(Integer integer) {
-//             return Optional.empty();
-//         }
-//
-//         @Override
-//         public boolean existsById(Integer integer) {
-//             return false;
-//         }
-//
-//         @Override
-//         public long count() {
-//             return 0;
-//         }
-//
-//         @Override
-//         public void deleteById(Integer integer) {
-//
-//         }
-//
-//         @Override
-//         public void delete(EmailTickets emailTickets) {
-//
-//         }
-//
-//         @Override
-//         public void deleteAll(Iterable<? extends EmailTickets> iterable) {
-//
-//         }
-//
-//         @Override
-//         public void deleteAll() {
-//
-//         }
-//
-//         @Override
-//         public <S extends EmailTickets> Optional<S> findOne(Example<S> example) {
-//             return Optional.empty();
-//         }
-//
-//         @Override
-//         public <S extends EmailTickets> Page<S> findAll(Example<S> example, Pageable pageable) {
-//             return null;
-//         }
-//
-//         @Override
-//         public <S extends EmailTickets> long count(Example<S> example) {
-//             return 0;
-//         }
-//
-//         @Override
-//         public <S extends EmailTickets> boolean exists(Example<S> example) {
-//             return false;
-//         }
-//     };
-    public EmailTickets emailDataInsert(EmailTickets emailTickets) {
-        return emailRepository.save(emailTickets);
+    public Email insertEmail(Email email) {
+        if (email instanceof EmailTickets) {
+            return emailTicketsRepository.save((EmailTickets) email);
+        } else if (email instanceof EmailSent) {
+            ((EmailSent) email).setSent(1);
+            return emailSentRepository.save((EmailSent) email);
+        } else if (email instanceof EmailGeneral) {
+            return emailGeneralRepository.save((EmailGeneral) email);
+        }
+        return null;
     }
+
+    public EmailTickets findSelectedEmail(int code) {
+        return emailTicketsRepository.findById(code)//
+                .orElseThrow(() -> new EmailNotFoundException(code));
+    }
+
+    public Users getUser(int id) {
+        return userRepository.findById(id)//
+                .orElseThrow(() -> new UserNotFoundException(id));
+    }
+
+    public List<String> whiteListDomain(int wbList) {
+        return domainListRepository.findNameByWhiteBlackList(wbList);
+    }
+
+    public EmailSettings getSettings() {
+        return settingRepository.findAll().get(0);
+    }
+
+    public List<EmailSent> readAllEmailsSent(int sent) {
+        return emailSentRepository.findBySent(sent);
+    }
+
+    public List<EmailGeneral> readAllEmailsGeneral() {
+        return emailGeneralRepository.findAll();
+    }
+
+    public List<EmailTickets> readAllEmailsStore() {
+        return emailTicketsRepository.findAll();
+    }
+
+    public List<EmailTickets> readAllSolvedEmails(char solve) {
+        return emailTicketsRepository.findBySolved(solve);
+    }
+
+    public List<EmailTickets> readAllLockedEmails() {
+        return emailTicketsRepository.findByLocked(1);
+    }
+
+
+    public int getNoOfLockedUnlockedEmailsByUser(int locked, int solvedBy) {
+        if (locked == 1) {
+            return emailTicketsRepository.countByLockedAndSolvedBy(locked, solvedBy);
+        } else {
+            return emailTicketsRepository.countByLockedAndSolvedBy(locked, solvedBy);
+        }
+    }
+
+//    public int getLatestEmailNo() {
+//        return ticketsRepository.findTopByOrderByCodeDesc();
+//    }
+
+    public int getNoOfSolvedEmailsByUser(char solve, int solveBy) {
+        if (solve == 'Y') {
+            return emailTicketsRepository.countBySolvedAndSolvedBy(solve, solveBy);
+        } else {
+            return emailTicketsRepository.countBySolvedAndSolvedBy(solve, solveBy);
+        }
+    }
+
 }

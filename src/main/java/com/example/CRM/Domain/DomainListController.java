@@ -52,7 +52,7 @@ public class DomainListController {
                 return domainListRepository.save(domains);
             })//
             .orElseGet(()->{
-               domain.setDomainCode(id);
+               domain.setCode(id);
                return domainListRepository.save(domain);
             });
         EntityModel<Domain> entityModel = domainListModelAssembler.toModel(updateDomains);
