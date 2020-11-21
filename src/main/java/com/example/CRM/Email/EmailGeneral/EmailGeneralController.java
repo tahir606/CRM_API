@@ -7,8 +7,6 @@ import com.example.CRM.Email.EmailTicket.EmailTickets;
 import com.example.CRM.JCode.EmailDBHandler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
@@ -49,16 +47,33 @@ public class EmailGeneralController {
         return CollectionModel.of(email_general, linkTo(methodOn(EmailGeneralController.class).all()).withSelfRel());
     }
 
+    @RequestMapping("/emails")
+    CollectionModel<EntityModel<EmailGeneral>> getUnFreezeGeneralEmails() {
+        List<EntityModel<EmailGeneral>> email_general = emailDBHandler.readAllEmailsGeneral(0).stream() //
+                .map(email_generalModelAssembler::toModel)//
+                .collect(Collectors.toList());
+        return CollectionModel.of(email_general, linkTo(methodOn(EmailGeneralController.class).all()).withSelfRel());
+    }
+
+
     @RequestMapping("/ticket/{code}")
     public boolean createTicketFromGeneral(@PathVariable int code) throws IOException, MessagingException {
         Email email = emailGeneralRepository.findById(code)//
                 .orElseThrow(() -> new EmailNotFoundException(code));
         EmailTickets emailTickets = convertToEmailTicket(email);
+        emailTickets.setTicketNo(emailDBHandler.maxTicketNo());
         emailDBHandler.insertEmail(emailTickets);
         if (emailSystem.autoReplyTicket(emailTickets)) {
             email.setFreeze(1);
             emailDBHandler.insertEmail(email);
         }
+        return true;
+    }
+    @RequestMapping("/archive/{code}")
+    public boolean moveToArchive(@PathVariable int code) {
+        EmailGeneral emailGeneral =emailDBHandler.findSelectedGeneralEmail(code);
+        emailGeneral.setFreeze(1);
+        emailDBHandler.insertEmail(emailGeneral);
         return true;
     }
 
@@ -71,7 +86,7 @@ public class EmailGeneralController {
         emailTickets.setAttachment(email.getAttachment());
         emailTickets.setSubject(email.getSubject());
         emailTickets.setBody(email.getBody());
-        emailTickets.setManualEmail(1);
+
         return emailTickets;
     }
 

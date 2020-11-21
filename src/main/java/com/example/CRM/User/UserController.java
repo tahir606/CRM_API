@@ -1,5 +1,6 @@
 package com.example.CRM.User;
 
+import com.example.CRM.Email.EmailTicket.EmailTicketCustomQueryRepository;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -14,15 +15,16 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/users")
-public class    UserController {
+public class UserController {
 
     private final UserRepository userRepository;
     private final UsersModelAssembler assembler;
+
     public UserController(UserRepository userRepository, UsersModelAssembler assembler) {
         this.userRepository = userRepository;
-        this.assembler=assembler;
-
+        this.assembler = assembler;
     }
+
     @GetMapping("/{id}")
     EntityModel<Users> one(@PathVariable int id) {
 
@@ -31,6 +33,7 @@ public class    UserController {
 
         return assembler.toModel(users);
     }
+
     @GetMapping
     CollectionModel<EntityModel<Users>> all() {
 
@@ -40,6 +43,7 @@ public class    UserController {
 
         return CollectionModel.of(users, linkTo(methodOn(UserController.class).all()).withSelfRel());
     }
+
 
     @PostMapping
     ResponseEntity<?> newUser(@RequestBody Users user) {

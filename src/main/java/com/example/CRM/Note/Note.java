@@ -1,7 +1,11 @@
 package com.example.CRM.Note;
 
+import com.example.CRM.Email.EmailTicket.EmailTickets;
+import com.example.CRM.User.Users;
+
 import javax.persistence.*;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "note_store")
@@ -20,27 +24,40 @@ public class Note {
     private int psID;
     @Column(name = "Leads_ID")
     private int leadsId;
-    @Column(name = "CreatedBy")
+    @Column(name = "Created_On")
+    private Timestamp createdOn;
+    @Column(name = "freeze")
+    private int freeze;
+    @Column(name = "Created_By")
     private int createdBy;
-    @Column(name = "CreatedOn")
-    private Date createdOn;
-    @Column(name = "N_Id")
-    private int nID;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "Created_By", insertable = false, updatable = false)
+    private Users users;
 
-    public Note(){
+    @Column(name = "EmailId")
+    private int emailId;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "EmailId", insertable = false, updatable = false)
+    private EmailTickets emailTickets;
+
+
+    public Note() {
 
     }
 
-    public Note(int noteCode, String text, int contactID, int clientID, int psID, int leadsId, int createdBy, Date createdOn, int nID) {
+    public Note(int noteCode, String text, int contactID, int clientID, int psID, int leadsId, int createdBy, Users users, Timestamp createdOn,int freeze, int emailId, EmailTickets emailTickets) {
         this.noteCode = noteCode;
         this.text = text;
         this.contactID = contactID;
         this.clientID = clientID;
         this.psID = psID;
         this.leadsId = leadsId;
-        this.createdBy = createdBy;
         this.createdOn = createdOn;
-        this.nID = nID;
+        this.freeze = freeze;
+        this.createdBy = createdBy;
+        this.users = users;
+        this.emailId = emailId;
+        this.emailTickets = emailTickets;
     }
 
     public int getNoteCode() {
@@ -99,20 +116,44 @@ public class Note {
         this.createdBy = createdBy;
     }
 
-    public Date getCreatedOn() {
+    public Timestamp getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
+    public void setCreatedOn(Timestamp createdOn) {
         this.createdOn = createdOn;
     }
 
-    public int getnID() {
-        return nID;
+    public int getFreeze() {
+        return freeze;
     }
 
-    public void setnID(int nID) {
-        this.nID = nID;
+    public void setFreeze(int freeze) {
+        this.freeze = freeze;
+    }
+
+    public int getEmailId() {
+        return emailId;
+    }
+
+    public void setEmailId(int emailID) {
+        this.emailId = emailID;
+    }
+
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
+    }
+
+    public EmailTickets getEmailTickets() {
+        return emailTickets;
+    }
+
+    public void setEmailTickets(EmailTickets emailTickets) {
+        this.emailTickets = emailTickets;
     }
 
     @Override
@@ -126,7 +167,8 @@ public class Note {
                 ", leadsId=" + leadsId +
                 ", createdBy=" + createdBy +
                 ", createdOn=" + createdOn +
-                ", nID=" + nID +
+                ", emailID=" + emailId +
+                ", freeze=" + freeze +
                 '}';
     }
 }

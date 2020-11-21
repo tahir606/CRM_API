@@ -26,7 +26,7 @@ public class EmailSettings {
     private int autoCheck;
     @Column(name="Disclaimer_Check")
     private int disclaimerCheck;
-    @Column(name = "AutoText")
+    @Column(name = "auto_text")
     private String autoText;
     @Column(name = "Disclaimer_Text")
     private String disclaimerText;
