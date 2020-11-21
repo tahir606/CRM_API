@@ -1,5 +1,8 @@
 package com.example.CRM.User;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 
 @Entity
@@ -72,7 +75,8 @@ public class Users {
     public void setEmail(String email) {
         this.email = email;
     }
-
+    @JsonIgnore
+    @JsonProperty(value = "password")
     public String getPassword() {
         return password;
     }

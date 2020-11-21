@@ -1,4 +1,5 @@
 package com.example.CRM.Email;
+import javax.mail.Address;
 import javax.persistence.*;
 
 import com.example.CRM.Email.EmailGeneral.EmailGeneral;
@@ -8,9 +9,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.io.File;
 import java.sql.Timestamp;
-import java.util.List;
 import javax.persistence.Id;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -26,19 +25,19 @@ public abstract class Email {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
-    @Column(name = "emailNo")
+    @Column(name = "email_no")
     private int code;
-    @Column(name = "messageNo")
+    @Column(name = "message_no")
     private int messageNo;
     @Column(name = "subject")
     private String subject;
-    @Column(name = "toAddress")
+    @Column(name = "to_address")
     private String toAddress;
-    @Column(name = "fromAddress")
+    @Column(name = "from_address")
     private String fromAddress;
-    @Column(name = "ccAddress")
+    @Column(name = "cc_address")
     private String ccAddress;
-    @Column(name = "bccAddress")
+    @Column(name = "bcc_address")
     private String bccAddress;
     @Column(name = "body")
     private String body;
@@ -52,7 +51,7 @@ public abstract class Email {
     }
 
 
-    public Email(int code, int messageNo, String subject, String toAddress, String fromAddress, String ccAddress, String bccAddress,
+    public Email(int code, int messageNo, String subject, String toAddress, String fromAddress,String ccAddress,String bccAddress,
                  String body, String attachment, Timestamp timestamp, int freeze) {
         this.code = code;
         this.messageNo = messageNo;
@@ -66,6 +65,7 @@ public abstract class Email {
         this.timestamp = timestamp;
         this.freeze = freeze;
     }
+
 
     public int getCode() {
         return code;
@@ -107,6 +107,7 @@ public abstract class Email {
         this.fromAddress = fromAddress;
     }
 
+
     public String getCcAddress() {
         return ccAddress;
     }
@@ -115,6 +116,13 @@ public abstract class Email {
         this.ccAddress = ccAddress;
     }
 
+    public String getBccAddress() {
+        return bccAddress;
+    }
+
+    public void setBccAddress(String bccAddress) {
+        this.bccAddress = bccAddress;
+    }
 
     public String getBody() {
         return body;
