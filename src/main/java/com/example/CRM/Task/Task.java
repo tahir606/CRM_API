@@ -1,67 +1,68 @@
 package com.example.CRM.Task;
 
+import com.example.CRM.Client.Client;
+import com.example.CRM.User.Users;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "task_store")
-public class Task {
+public class Task  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "task_ID")
+    @Column(name = "taskID")
     private int taskID;
-    @Column(name = "task_Subject")
+    @Column(name = "subject")
     private String subject;
-    @Column(name = "task_entry_date")
-    private Date entryDate;
-    @Column(name = "task_due_date")
-    private Date dueDate;
-    @Column(name = "task_Repeat")
+    @Column(name = "entryDate")
+    private Timestamp entryDate;
+    @Column(name = "dueDate")
+    private Timestamp dueDate;
+    @Column(name = "isRepeat")
     private int repeat;
-    @Column(name = "task_Description")
+    @Column(name = "description")
     private String description;
-    @Column(name = "task_Status")
+    @Column(name = "status")
     private int status;
-    @Column(name = "task_ClosedOn")
-    private Date closedOn;
-    @Column(name = "task_Notified")
+    @Column(name = "closedOn")
+    private Timestamp closedOn;
+    @Column(name = "notified")
     private int notified;
-    @Column(name = "Contact_ID")
+    @Column(name = "contactID")
     private int contactID;
-    @Column(name = "Client_ID")
-    private int clientID;
-    @Column(name = "Product_ID")
+    @Column(name = "psID")
     private int psID;
-    @Column(name = "Leads_ID")
+    @Column(name = "leadsId")
     private int leadsId;
-    @Column(name = "task_CreatedBy")
+    @Column(name = "createdBy")
     private int createdBy;
-    @Column(name = "task_CreatedOn")
-    private Date createdOn;
-    @Column(name = "task_Freeze")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "createdBy", insertable = false, updatable = false)
+    private Users users;
+    @Column(name = "createdOn")
+    private Timestamp createdOn;
+    @Column(name = "freeze")
     private int freeze;
-
+    @Column(name = "CL_ID")
+    private Integer clientID;
+    @JsonBackReference(value = "clTaskList")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "CL_ID", insertable = false, updatable = false)
+    private Client clientTaskList;
     public Task(){
 
     }
-    public Task(int taskID, String subject, Date entryDate, Date dueDate, int repeat, String description, int status, Date closedOn,
-                int notified, int contactID, int clientID, int psID, int leadsId, int createdBy, Date createdOn, int freeze) {
-        this.taskID = taskID;
-        this.subject = subject;
-        this.entryDate = entryDate;
-        this.dueDate = dueDate;
-        this.repeat = repeat;
-        this.description = description;
-        this.status = status;
-        this.closedOn = closedOn;
-        this.notified = notified;
-        this.contactID = contactID;
-        this.clientID = clientID;
-        this.psID = psID;
-        this.leadsId = leadsId;
-        this.createdBy = createdBy;
-        this.createdOn = createdOn;
-        this.freeze = freeze;
+
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
     }
 
     public int getTaskID() {
@@ -80,19 +81,19 @@ public class Task {
         this.subject = subject;
     }
 
-    public Date getEntryDate() {
+    public Timestamp getEntryDate() {
         return entryDate;
     }
 
-    public void setEntryDate(Date entryDate) {
+    public void setEntryDate(Timestamp entryDate) {
         this.entryDate = entryDate;
     }
 
-    public Date getDueDate() {
+    public Timestamp getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(Timestamp dueDate) {
         this.dueDate = dueDate;
     }
 
@@ -120,11 +121,11 @@ public class Task {
         this.status = status;
     }
 
-    public Date getClosedOn() {
+    public Timestamp getClosedOn() {
         return closedOn;
     }
 
-    public void setClosedOn(Date closedOn) {
+    public void setClosedOn(Timestamp closedOn) {
         this.closedOn = closedOn;
     }
 
@@ -144,11 +145,11 @@ public class Task {
         this.contactID = contactID;
     }
 
-    public int getClientID() {
+    public Integer getClientID() {
         return clientID;
     }
 
-    public void setClientID(int clientID) {
+    public void setClientID(Integer clientID) {
         this.clientID = clientID;
     }
 
@@ -176,11 +177,11 @@ public class Task {
         this.createdBy = createdBy;
     }
 
-    public Date getCreatedOn() {
+    public Timestamp getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
+    public void setCreatedOn(Timestamp createdOn) {
         this.createdOn = createdOn;
     }
 
@@ -190,6 +191,14 @@ public class Task {
 
     public void setFreeze(int freeze) {
         this.freeze = freeze;
+    }
+
+    public Client getClientTaskList() {
+        return clientTaskList;
+    }
+
+    public void setClientTaskList(Client clientTaskList) {
+        this.clientTaskList = clientTaskList;
     }
 
     @Override

@@ -5,8 +5,8 @@ import org.springframework.hateoas.EntityModel;
 import javax.persistence.*;
 import java.util.List;
 
-@Entity
-@Table(name = "email_settings")
+@Entity(name = "email_settings")
+
 public class EmailSettings {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

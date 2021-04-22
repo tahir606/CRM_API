@@ -1,15 +1,30 @@
 package com.example.CRM.Client;
 
-import javax.persistence.*;
-import java.sql.Date;
+import com.example.CRM.Email.EmailList.EmailList;
+import com.example.CRM.Event.Event;
+import com.example.CRM.Note.Note;
+import com.example.CRM.Phone.PhoneList;
+import com.example.CRM.Task.Task;
+import com.example.CRM.User.Users;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@Entity
-@Table(name = "client_store")
-public class Client {
+import javax.persistence.*;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.List;
+
+@Entity(name = "client_store")
+@Table
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property  = "clientID",
+//        scope     = Integer.class)
+public class Client implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "Cl_ID")
+    @Column(name = "CL_ID")
     private int clientID;
     @Column(name = "Cl_Name")
     private String name;
@@ -28,39 +43,109 @@ public class Client {
     @Column(name = "Cl_Website")
     private String website;
     @Column(name = "Cl_JoinDate")
-    private Date joinDate;
+    private Timestamp joinDate;
     @Column(name = "Cl_Bcycle")
-    private Date bicycle;
+    private Timestamp bicycle;
     @Column(name = "Cl_Type")
     private int type;
     @Column(name = "From_Lead")
     private int fromLead;
+    @Column(name = "availableCount")
+    private Long availableCount;
     @Column(name = "Created_By")
     private int createdBy;
-    @Column(name = "Created_On")
-    private Date createdOn;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "Created_By", insertable = false, updatable = false)
+    private Users users;
 
-    public Client(){
+    @Column(name = "Created_On")
+    private Timestamp createdOn;
+
+    @JsonManagedReference(value = "clEmailLists")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "clientEmailList")
+    private List<EmailList> clEmailLists;
+
+    @JsonManagedReference(value = "clPhoneLists")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "clientPhoneList")
+    private List<PhoneList> clPhoneLists;
+
+    @JsonManagedReference(value = "clNoteList")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "clientNoteList")
+    private List<Note> clNoteList;
+
+    @JsonManagedReference(value = "clTaskList")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "clientTaskList")
+    private List<Task> clTaskList;
+
+    @JsonManagedReference(value = "clEventList")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "clientEventList")
+    private List<Event> clEventList;
+
+    public Client() {
 
     }
-    public Client(int clientID, String name, String owner, String email, String phoneNo,
-                  String address, String city, String country, String website,
-                  Date joinDate, Date bicycle, int type, int fromLead, int createdBy, Date createdOn) {
+
+    public Client(int clientID, String name, String owner, long availableCount) {
         this.clientID = clientID;
         this.name = name;
         this.owner = owner;
-        this.email = email;
-        this.phoneNo = phoneNo;
-        this.address = address;
-        this.city = city;
-        this.country = country;
-        this.website = website;
-        this.joinDate = joinDate;
-        this.bicycle = bicycle;
-        this.type = type;
-        this.fromLead = fromLead;
-        this.createdBy = createdBy;
-        this.createdOn = createdOn;
+        this.availableCount = availableCount;
+    }
+
+    public Long getAvailableCount() {
+        return availableCount;
+    }
+
+    public void setAvailableCount(Long availableCount) {
+        this.availableCount = availableCount;
+    }
+
+    public List<Task> getClTaskList() {
+        return clTaskList;
+    }
+
+    public void setClTaskList(List<Task> clTaskList) {
+        this.clTaskList = clTaskList;
+    }
+
+    public List<Event> getClEventList() {
+        return clEventList;
+    }
+
+    public void setClEventList(List<Event> clEventList) {
+        this.clEventList = clEventList;
+    }
+
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
+    }
+
+    public List<Note> getClNoteList() {
+        return clNoteList;
+    }
+
+    public void setClNoteList(List<Note> noteList) {
+        this.clNoteList = noteList;
+    }
+
+    public List<EmailList> getClEmailLists() {
+        return clEmailLists;
+    }
+
+    public void setClEmailLists(List<EmailList> emailLists) {
+        this.clEmailLists = emailLists;
+    }
+
+    public List<PhoneList> getClPhoneLists() {
+        return clPhoneLists;
+    }
+
+    public void setClPhoneLists(List<PhoneList> phoneLists) {
+        this.clPhoneLists = phoneLists;
     }
 
     public int getClientID() {
@@ -135,20 +220,29 @@ public class Client {
         this.website = website;
     }
 
-    public Date getJoinDate() {
+
+    public Timestamp getJoinDate() {
         return joinDate;
     }
 
-    public void setJoinDate(Date joinDate) {
+    public void setJoinDate(Timestamp joinDate) {
         this.joinDate = joinDate;
     }
 
-    public Date getBicycle() {
+    public Timestamp getBicycle() {
         return bicycle;
     }
 
-    public void setBicycle(Date bicycle) {
+    public void setBicycle(Timestamp bicycle) {
         this.bicycle = bicycle;
+    }
+
+    public Timestamp getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Timestamp createdOn) {
+        this.createdOn = createdOn;
     }
 
     public int getType() {
@@ -175,32 +269,25 @@ public class Client {
         this.createdBy = createdBy;
     }
 
-    public Date getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
-    }
-
     @Override
     public String toString() {
-        return "Client_Store{" +
-                "client_ID=" + clientID +
-                ", client_Name='" + name + '\'' +
-                ", client_Owner='" + owner + '\'' +
-                ", client_Email='" + email + '\'' +
-                ", client_Phone='" + phoneNo + '\'' +
-                ", client_Address='" + address + '\'' +
-                ", client_City='" + city + '\'' +
-                ", client_Country='" + country + '\'' +
-                ", client_Website='" + website + '\'' +
-                ", client_JoinDate=" + joinDate +
-                ", client_Bcycle=" + bicycle +
-                ", client_Type=" + type +
-                ", from_Lead=" + fromLead +
-                ", created_By=" + createdBy +
-                ", create_Don=" + createdOn +
+        return "Client{" +
+                "clientID=" + clientID +
+                ", name='" + name + '\'' +
+                ", owner='" + owner + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNo='" + phoneNo + '\'' +
+                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", country='" + country + '\'' +
+                ", website='" + website + '\'' +
+                ", joinDate=" + joinDate +
+                ", bicycle=" + bicycle +
+                ", type=" + type +
+                ", fromLead=" + fromLead +
+                ", createdBy=" + createdBy +
+                ", users=" + users +
+                ", createdOn=" + createdOn +
                 '}';
     }
 }

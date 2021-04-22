@@ -1,7 +1,8 @@
 package com.example.CRM.Client;
 
 
-import com.example.CRM.User.Users;
+import com.example.CRM.JCode.EmailDBHandler;
+import com.example.CRM.User.UserSystem;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -15,14 +16,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/client_store")
+@RequestMapping("/client")
 public class ClientController {
     private final ClientRepository client_Repository;
     private final ClientModelAssembler client_ModelAssembler;
-
-    public ClientController(ClientRepository client_Repository, ClientModelAssembler client_ModelAssembler) {
+    private final EmailDBHandler emailDBHandler;
+    private final ClientSystem clientSystem;
+    public ClientController(ClientRepository client_Repository, ClientModelAssembler client_ModelAssembler, EmailDBHandler emailDBHandler,ClientSystem clientSystem) {
         this.client_Repository = client_Repository;
         this.client_ModelAssembler = client_ModelAssembler;
+        this.emailDBHandler = emailDBHandler;
+        this.clientSystem = clientSystem;
     }
 
 
@@ -35,13 +39,36 @@ public class ClientController {
     }
 
     @GetMapping
-    CollectionModel<EntityModel<Client>> all() {
+    public CollectionModel<EntityModel<Client>> all() {
 
         List<EntityModel<Client>> client_store = client_Repository.findAll().stream() //
                 .map(client_ModelAssembler::toModel) //
                 .collect(Collectors.toList());
-
         return CollectionModel.of(client_store, linkTo(methodOn(ClientController.class).all()).withSelfRel());
+    }
+
+    @RequestMapping("/clientList")
+    public CollectionModel<EntityModel<Client>> getClientList() {
+
+        List<EntityModel<Client>> client_store = client_Repository.findAll().stream() //
+                .map(client_ModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(client_store, linkTo(methodOn(ClientController.class).all()).withSelfRel());
+    }
+    @RequestMapping("/emailsPerClient")
+    public CollectionModel<EntityModel<Client>> emailsPerClient(@RequestParam String filter) {
+        String filterTicket = clientSystem.filterTime(filter);
+        List<EntityModel<Client>> client_store = emailDBHandler.emailsPerClient(filterTicket).stream() //
+                .map(client_ModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(client_store, linkTo(methodOn(ClientController.class).all()).withSelfRel());
+    }
+    @RequestMapping("/addClient")
+    ResponseEntity<?> addClient(@RequestBody Client client) {
+        EntityModel<Client> client_storeEntityModel = client_ModelAssembler.toModel(client_Repository.save(client));
+        return ResponseEntity //
+                .created(client_storeEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+                .body(client_storeEntityModel);
     }
 
     @PostMapping
@@ -74,9 +101,9 @@ public class ClientController {
                     client1.setCreatedOn(client.getCreatedOn());
                     return client_Repository.save(client1);
                 }) //
-                .orElseGet(()->{
-                   client.setClientID(id);
-                   return client_Repository.save(client);
+                .orElseGet(() -> {
+                    client.setClientID(id);
+                    return client_Repository.save(client);
                 });
         EntityModel<Client> entityModel = client_ModelAssembler.toModel(updateClient);
 

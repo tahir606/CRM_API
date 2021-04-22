@@ -1,69 +1,71 @@
 package com.example.CRM.Event;
 
+import com.example.CRM.Client.Client;
+import com.example.CRM.User.Users;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "event_store")
-public class Event {
+public class Event  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "Event_ID")
+    @Column(name = "eventID")
     private int eventID;
-    @Column(name = "Event_Tittle")
+    @Column(name = "tittle")
     private String tittle;
-    @Column(name = "Event_Location")
+    @Column(name = "location")
     private String location;
-    @Column(name = "Event_AllDay")
+    @Column(name = "isEventAllDay")
     private int eventAllDay;
-    @Column(name = "Event_From")
-    private Date from;
-    @Column(name = "Event_To")
-    private Date to;
-    @Column(name = "Event_Description")
+    @Column(name = "fromDate")
+    private Timestamp from;
+    @Column(name = "toDate")
+    private Timestamp to;
+    @Column(name = "description")
     private String description;
-    @Column(name = "Event_Notified")
+    @Column(name = "notified")
     private int notified;
-    @Column(name = "Cl_ID")
-    private int clientID;
-    @Column(name = "Leads_ID")
+    @Column(name = "leadsId")
     private int leadsId;
-    @Column(name = "Product_ID")
+    @Column(name = "productID")
     private int productID;
-    @Column(name = "CreatedBy")
+    @Column(name = "createdBy")
     private int createdBy;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "createdBy", insertable = false, updatable = false)
+    private Users users;
     @Column(name = "CreatedOn")
-    private Date createdOn;
+    private Timestamp createdOn;
     @Column(name = "Freeze")
     private int freeze;
-    @Column(name = "Event_ClosedOn")
-    private Date closedOn;
-    @Column(name = "Event_Status")
+    @Column(name = "closedOn")
+    private Timestamp closedOn;
+    @Column(name = "status")
     private int status;
+    @Column(name = "CL_ID")
+    private Integer clientID;
+    @JsonBackReference(value = "clEventList")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "CL_ID", insertable = false, updatable = false)
+    private Client clientEventList;
+
 
     public Event(){
 
     }
 
-    public Event(int eventID, String tittle, String location, int eventAllDay, Date event_From, Date event_To, String description,
-                 int notified, int clientID, int leadsId, int productID, int createdBy, Date createdOn, int freeze, Date closedOn,
-                 int status) {
-        this.eventID = eventID;
-        this.tittle = tittle;
-        this.location = location;
-        this.eventAllDay = eventAllDay;
-        from = event_From;
-        to = event_To;
-        this.description = description;
-        this.notified = notified;
-        this.clientID = clientID;
-        this.leadsId = leadsId;
-        this.productID = productID;
-        this.createdBy = createdBy;
-        this.createdOn = createdOn;
-        this.freeze = freeze;
-        this.closedOn = closedOn;
-        this.status = status;
+
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
     }
 
     public int getEventID() {
@@ -98,19 +100,19 @@ public class Event {
         this.eventAllDay = eventAllDay;
     }
 
-    public Date getFrom() {
+    public Timestamp getFrom() {
         return from;
     }
 
-    public void setFrom(Date from) {
+    public void setFrom(Timestamp from) {
         this.from = from;
     }
 
-    public Date getTo() {
+    public Timestamp getTo() {
         return to;
     }
 
-    public void setTo(Date to) {
+    public void setTo(Timestamp to) {
         this.to = to;
     }
 
@@ -130,11 +132,11 @@ public class Event {
         this.notified = notified;
     }
 
-    public int getClientID() {
+    public Integer getClientID() {
         return clientID;
     }
 
-    public void setClientID(int clientID) {
+    public void setClientID(Integer clientID) {
         this.clientID = clientID;
     }
 
@@ -162,11 +164,11 @@ public class Event {
         this.createdBy = createdBy;
     }
 
-    public Date getCreatedOn() {
+    public Timestamp getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
+    public void setCreatedOn(Timestamp createdOn) {
         this.createdOn = createdOn;
     }
 
@@ -178,11 +180,11 @@ public class Event {
         this.freeze = freeze;
     }
 
-    public Date getClosedOn() {
+    public Timestamp getClosedOn() {
         return closedOn;
     }
 
-    public void setClosedOn(Date closedOn) {
+    public void setClosedOn(Timestamp closedOn) {
         this.closedOn = closedOn;
     }
 
@@ -194,25 +196,34 @@ public class Event {
         this.status = status;
     }
 
+    public Client getClientEventList() {
+        return clientEventList;
+    }
+
+    public void setClientEventList(Client clientEventList) {
+        this.clientEventList = clientEventList;
+    }
+
     @Override
     public String toString() {
         return "Event{" +
-                "event_ID=" + eventID +
-                ", event_Tittle='" + tittle + '\'' +
-                ", event_Location='" + location + '\'' +
-                ", event_EventAllDay=" + eventAllDay +
-                ", Event_From=" + from +
-                ", Event_To=" + to +
-                ", event_Description='" + description + '\'' +
-                ", event_Notified=" + notified +
-                ", client_ID=" + clientID +
-                ", leads_id=" + leadsId +
-                ", product_ID=" + productID +
-                ", CreatedBy=" + createdBy +
-                ", CreatedOn=" + createdOn +
+                "eventID=" + eventID +
+                ", tittle='" + tittle + '\'' +
+                ", location='" + location + '\'' +
+                ", eventAllDay=" + eventAllDay +
+                ", from=" + from +
+                ", to=" + to +
+                ", description='" + description + '\'' +
+                ", notified=" + notified +
+                ", leadsId=" + leadsId +
+                ", productID=" + productID +
+                ", createdBy=" + createdBy +
+                ", createdOn=" + createdOn +
                 ", freeze=" + freeze +
-                ", event_ClosedOn=" + closedOn +
-                ", event_Status=" + status +
+                ", closedOn=" + closedOn +
+                ", status=" + status +
+                ", clientID=" + clientID +
+                ", clientEventList=" + clientEventList +
                 '}';
     }
 }

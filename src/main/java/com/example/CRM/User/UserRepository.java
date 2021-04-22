@@ -6,4 +6,6 @@ import org.springframework.http.ResponseEntity;
 public interface UserRepository extends JpaRepository<Users, Integer> {
     @Query(value = "select u.fname from users u where u.ucode= :userCode",nativeQuery = true)
     String findByFullName(int userCode);
+
+    Users findByUserNameAndPasswordAndFreezeAndIsLog(String userName,String userPassword,int freeze ,int isLog);
 }

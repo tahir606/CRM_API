@@ -1,28 +1,58 @@
 package com.example.CRM.Phone;
 
-import javax.persistence.*;
+import com.example.CRM.Client.Client;
+import com.example.CRM.Contact.Contact;
+import com.example.CRM.User.Users;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@Entity
-@Table(name = "phone_list")
-public class PhoneList {
+import javax.persistence.*;
+import java.io.Serializable;
+
+@Entity(name = "phone_list")
+@Table
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property  = "phoneID",
+//        scope     = Integer.class)
+public class PhoneList implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "Phone_ID")
     private int phoneID;
+
     @Column(name = "Phone_Number")
     private String number;
-    @Column(name = "Client_ID")
-    private int clientID;
+
     @Column(name = "User_CODE")
-    private int userCode;
-    @Column(name = "Contact_ID")
-    private int contactID;
+    private Integer userCode;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "User_Code", insertable = false, updatable = false)
+    private Users users;
+
     @Column(name = "Leads_ID")
     private int leadsId;
 
-    public PhoneList(){
+    @Column(name = "CL_ID")
+    private Integer clientID;
+    @JsonBackReference(value = "clPhoneLists")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "CL_ID", insertable = false, updatable = false)
+    private Client clientPhoneList;
+
+    @Column(name = "CS_ID")
+    private Integer contactID;
+    @JsonBackReference(value = "coPhoneLists")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "CS_ID", insertable = false, updatable = false)
+    private Contact contactPhoneList;
+
+
+    public PhoneList() {
 
     }
+
     public PhoneList(int phoneID, String number, int clientID, int userCode, int contactID, int leadsId) {
         this.phoneID = phoneID;
         this.number = number;
@@ -30,6 +60,30 @@ public class PhoneList {
         this.userCode = userCode;
         this.contactID = contactID;
         this.leadsId = leadsId;
+    }
+
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
+    }
+
+    public Contact getContactPhoneList() {
+        return contactPhoneList;
+    }
+
+    public void setContactPhoneList(Contact contact) {
+        this.contactPhoneList = contact;
+    }
+
+    public Client getClientPhoneList() {
+        return clientPhoneList;
+    }
+
+    public void setClientPhoneList(Client client) {
+        this.clientPhoneList = client;
     }
 
     public int getPhoneID() {
@@ -48,27 +102,27 @@ public class PhoneList {
         this.number = number;
     }
 
-    public int getClientID() {
+    public Integer getClientID() {
         return clientID;
     }
 
-    public void setClientID(int clientID) {
+    public void setClientID(Integer clientID) {
         this.clientID = clientID;
     }
 
-    public int getUserCode() {
+    public Integer getUserCode() {
         return userCode;
     }
 
-    public void setUserCode(int userCode) {
+    public void setUserCode(Integer userCode) {
         this.userCode = userCode;
     }
 
-    public int getContactID() {
+    public Integer getContactID() {
         return contactID;
     }
 
-    public void setContactID(int contactID) {
+    public void setContactID(Integer contactID) {
         this.contactID = contactID;
     }
 
@@ -83,12 +137,13 @@ public class PhoneList {
     @Override
     public String toString() {
         return "PhoneList{" +
-                "phone_ID=" + phoneID +
-                ", phone_Number='" + number + '\'' +
-                ", client_ID=" + clientID +
+                "phoneID=" + phoneID +
+                ", number='" + number + '\'' +
+                ", clientID=" + clientID +
+//                ", client=" + client +
                 ", userCode=" + userCode +
-                ", contact_ID=" + contactID +
-                ", leads_id=" + leadsId +
+                ", contactID=" + contactID +
+                ", leadsId=" + leadsId +
                 '}';
     }
 }

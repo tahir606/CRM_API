@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/client_type")
+@RequestMapping("/clientType")
 public class ClientTypeController {
 
     private final ClientTypeRepository clientTypeRepository;
@@ -36,7 +36,13 @@ public class ClientTypeController {
                 .collect(Collectors.toList());
         return CollectionModel.of(entityModels ,linkTo(methodOn(ClientTypeController.class).all()).withSelfRel());
     }
-
+    @RequestMapping("/getClientType")
+    CollectionModel<EntityModel<ClientType>> getClientType() {
+        List<EntityModel<ClientType>> entityModels = clientTypeRepository.findAll().stream() //
+                .map(clientTypeModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(entityModels ,linkTo(methodOn(ClientTypeController.class).all()).withSelfRel());
+    }
     @PostMapping
     ResponseEntity<?> newClientType(@RequestBody ClientType clientType){
         EntityModel<ClientType>  clientTypeEntityModel =clientTypeModelAssembler.toModel(clientTypeRepository.save(clientType));

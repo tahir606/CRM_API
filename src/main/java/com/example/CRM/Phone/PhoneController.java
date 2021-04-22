@@ -1,6 +1,6 @@
 package com.example.CRM.Phone;
 
-import com.example.CRM.User.*;
+import com.example.CRM.JCode.EmailDBHandler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -14,15 +14,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/phone_list")
+@RequestMapping("/phoneList")
 public class PhoneController {
     private final PhoneListRepository phoneListRepository;
     private final PhoneListModelAssembler phoneListModelAssembler;
+    private final EmailDBHandler emailDBHandler;
 
 
-    public PhoneController(PhoneListRepository phoneListRepository, PhoneListModelAssembler phoneListModelAssembler) {
+    public PhoneController(PhoneListRepository phoneListRepository, PhoneListModelAssembler phoneListModelAssembler, EmailDBHandler emailDBHandler) {
         this.phoneListRepository = phoneListRepository;
         this.phoneListModelAssembler = phoneListModelAssembler;
+        this.emailDBHandler = emailDBHandler;
     }
 
     @GetMapping("/{id}")
@@ -52,7 +54,20 @@ public class PhoneController {
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
                 .body(entityModel);
     }
+    @RequestMapping("/addPhone")
+    public ResponseEntity<?> addEmail(@RequestBody PhoneList phoneList) {
+        EntityModel<PhoneList> entityModel = phoneListModelAssembler.toModel(phoneListRepository.save(phoneList));
 
+        return ResponseEntity //
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+                .body(entityModel);
+
+    }
+    @RequestMapping("/deletePhoneList/{code}")
+    ResponseEntity<?> delete(@PathVariable int code) {
+        emailDBHandler.deletePhoneListSingleRow(code);
+        return ResponseEntity.noContent().build();
+    }
     @PutMapping("/{id}")
     ResponseEntity<?> updatePhone(@RequestBody PhoneList phoneList , @PathVariable int id){
         PhoneList phoneUpdate = phoneListRepository.findById(id)//

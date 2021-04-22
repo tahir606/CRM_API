@@ -7,6 +7,7 @@ import com.example.CRM.User.Users;
 import javax.mail.Address;
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity(name = "email_sent")
 public class EmailSent extends Email {
@@ -29,8 +30,8 @@ public class EmailSent extends Email {
 
     }
 
-    public EmailSent(int code, int messageNo, String subject, String toAddress, String fromAddress, String ccAddress, String bccAddress,
-                     String body, String attachment, Timestamp timestamp, int freeze, char upload_Attach, int userCode, int esno, int sent) {
+    public EmailSent(int code, int messageNo, String subject, List<String> toAddress, List<String>  fromAddress, List<String>  ccAddress, List<String>  bccAddress,
+                     String body, List<String> attachment, Timestamp timestamp, int freeze, char upload_Attach, int userCode, int esno, int sent) {
         super(code, messageNo, subject, toAddress, fromAddress, ccAddress,bccAddress, body, attachment, timestamp, freeze);
         this.upload_Attach = upload_Attach;
         this.userCode = userCode;

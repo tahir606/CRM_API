@@ -6,7 +6,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
-    @Component
+@Component
 public class UsersModelAssembler implements RepresentationModelAssembler<Users, EntityModel<Users>>{
     @Override
     public EntityModel<Users> toModel(Users users) {

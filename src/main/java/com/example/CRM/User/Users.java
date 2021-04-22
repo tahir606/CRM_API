@@ -2,14 +2,18 @@ package com.example.CRM.User;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.persistence.*;
+import javax.ws.rs.QueryParam;
+import java.io.Serializable;
+import java.sql.Timestamp;
 
-@Entity
-@Table(name = "users")
+@Entity(name = "users")
+@Table()
 public class Users {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UCODE")
     private int userCode;
     @Column(name = "FNAME")
@@ -19,19 +23,29 @@ public class Users {
     @Column(name = "Email")
     private String email;
     @Column(name = "UPASS")
-    private String password ;
+    private String password;
     @Column(name = "NOTE")
     private String note;
     @Column(name = "URIGHT")
     private String userRight;
     @Column(name = "FREZE")
-    private boolean freeze = false;
+    private int freeze = 0;
     @Column(name = "ISLOG")
     private int isLog;
     @Column(name = "ISEMAIL")
-    private boolean isEmail;
+    private int isEmail;
+    @Column(name = "availableCount")
+    private Long availableCount;
+    @Column(name = "availableString")
+    private String availableString;
 
     public Users() {
+    }
+
+    public Users(String fullName,String time) {
+        this.fullName = fullName;
+        this.availableString = time;
+
     }
 
     public Users(String fullName, String userName, String email, String password, String note, String userRight) {
@@ -42,6 +56,29 @@ public class Users {
         this.note = note;
         this.userRight = userRight;
 
+    }
+
+    public Users(int userCode, String fullName, String userName, Long availableCount) {
+        this.userCode = userCode;
+        this.fullName = fullName;
+        this.userName = userName;
+        this.availableCount = availableCount;
+    }
+
+    public String getAvailableString() {
+        return availableString;
+    }
+
+    public void setAvailableString(String availableString) {
+        this.availableString = availableString;
+    }
+
+    public Long getAvailableCount() {
+        return availableCount;
+    }
+
+    public void setAvailableCount(Long availableCount) {
+        this.availableCount = availableCount;
     }
 
     public int getUserCode() {
@@ -75,6 +112,7 @@ public class Users {
     public void setEmail(String email) {
         this.email = email;
     }
+
     @JsonIgnore
     @JsonProperty(value = "password")
     public String getPassword() {
@@ -101,11 +139,12 @@ public class Users {
         this.userRight = userRight;
     }
 
-    public boolean isFreeze() {
+
+    public int getFreeze() {
         return freeze;
     }
 
-    public void setFreeze(boolean freeze) {
+    public void setFreeze(int freeze) {
         this.freeze = freeze;
     }
 
@@ -117,13 +156,13 @@ public class Users {
         this.isLog = isLog;
     }
 
-//    public boolean isEmail() {
-//        return isEmail;
-//    }
-//
-//    public void setEmail(boolean email) {
-//        isEmail = email;
-//    }
+    public int getIsEmail() {
+        return isEmail;
+    }
+
+    public void setIsEmail(int isEmail) {
+        this.isEmail = isEmail;
+    }
 
     @Override
     public String toString() {
@@ -132,12 +171,14 @@ public class Users {
                 ", fullName='" + fullName + '\'' +
                 ", userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
-                ", userPassword='" + password + '\'' +
+                ", password='" + password + '\'' +
                 ", note='" + note + '\'' +
                 ", userRight='" + userRight + '\'' +
                 ", freeze=" + freeze +
                 ", isLog=" + isLog +
-//                ", isEmail=" + isEmail +
+                ", isEmail=" + isEmail +
+                ", availableCount=" + availableCount +
+                ", availableString='" + availableString + '\'' +
                 '}';
     }
 }

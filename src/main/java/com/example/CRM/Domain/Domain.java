@@ -12,7 +12,7 @@ public class Domain {
     @Column(name = "Name")
     private String name;
     @Column(name = "whiteBlackList")
-    private int whiteBlackList;
+    private int whiteBlackList =0;
 
     public Domain(){
 

@@ -1,5 +1,6 @@
 package com.example.CRM.Email.Setiings;
 
+import com.example.CRM.JCode.EmailDBHandler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -17,23 +18,28 @@ import java.util.stream.Collectors;
 public class SettingsController {
     private final SettingRepository settingRepository;
     private final SettingModelAssembler settingModelAssembler;
+    private final SettingsCustomQuery settingsCustomQuery;
+    private final EmailDBHandler emailDBHandler;
 
-    public SettingsController(SettingRepository settingRepository, SettingModelAssembler settingModelAssembler) {
+    public SettingsController(SettingRepository settingRepository, SettingModelAssembler settingModelAssembler, SettingsCustomQuery settingsCustomQuery, EmailDBHandler emailDBHandler) {
         this.settingRepository = settingRepository;
         this.settingModelAssembler = settingModelAssembler;
+        this.settingsCustomQuery = settingsCustomQuery;
+        this.emailDBHandler = emailDBHandler;
     }
+
     @GetMapping("/{id}")
-    public EntityModel<EmailSettings> one(@PathVariable int id){
+    public EntityModel<EmailSettings> one(@PathVariable int id) {
         EmailSettings emailSettings = settingRepository.findById(id)//
-                .orElseThrow(()-> new SettingsNotFoundException(id));
+                .orElseThrow(() -> new SettingsNotFoundException(id));
         return settingModelAssembler.toModel(emailSettings);
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<EmailSettings>> all(){
+    public CollectionModel<EntityModel<EmailSettings>> all() {
         List<EntityModel<EmailSettings>> emailSettings = settingRepository.findAll().stream()//
-            .map(settingModelAssembler::toModel)//
-            .collect(Collectors.toList());
+                .map(settingModelAssembler::toModel)//
+                .collect(Collectors.toList());
         return CollectionModel.of(emailSettings, linkTo(methodOn(SettingsController.class).all()).withSelfRel());
     }
 
@@ -44,6 +50,21 @@ public class SettingsController {
         return ResponseEntity //
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
                 .body(entityModel);
+    }
+
+    @RequestMapping("/replacementKeyword")
+    public void updateReplacementKeyword(@RequestParam String keyword) {
+        settingsCustomQuery.updateReplacementKeyword(keyword);
+    }
+
+    @RequestMapping("/getSettings")
+    public EmailSettings getSettings() {
+        return emailDBHandler.getSettings();
+    }
+
+    @RequestMapping("/updateSettings")
+    public void updateEmailSettings(@RequestBody EmailSettings emailSettings) {
+        settingRepository.save(emailSettings);
     }
 
     @PutMapping("/{id}")

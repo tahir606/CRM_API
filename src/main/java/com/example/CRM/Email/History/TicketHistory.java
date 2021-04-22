@@ -3,6 +3,7 @@ package com.example.CRM.Email.History;
 import com.example.CRM.Email.EmailTicket.EmailTickets;
 import com.example.CRM.Email.EmailTicket.Status;
 import com.example.CRM.User.Users;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -75,13 +76,7 @@ public class TicketHistory implements Serializable {
         this.emailId = emailId;
     }
 
-//    public EmailTickets getEmailTickets() {
-//        return emailTickets;
-//    }
-//
-//    public void setEmailTickets(EmailTickets emailTickets) {
-//        this.emailTickets = emailTickets;
-//    }
+
 
     public Timestamp getTime() {
         return time;

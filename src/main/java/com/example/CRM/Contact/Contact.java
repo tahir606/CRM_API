@@ -1,11 +1,25 @@
 package com.example.CRM.Contact;
 
+import com.example.CRM.Client.Client;
+import com.example.CRM.Email.EmailList.EmailList;
+import com.example.CRM.Note.Note;
+import com.example.CRM.Phone.PhoneList;
+import com.example.CRM.User.Users;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import javax.persistence.*;
-import java.sql.Date;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "contact_store")
-public class Contact {
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property  = "contactID",
+//        scope     = Integer.class)
+public class Contact implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "CS_ID")
@@ -15,7 +29,7 @@ public class Contact {
     @Column(name = "CS_LastName")
     private String lastName;
     @Column(name = "CS_DOB")
-    private Date dateOfBirth;
+    private Timestamp dateOfBirth;
     @Column(name = "CS_Address")
     private String address;
     @Column(name = "CS_City")
@@ -25,31 +39,76 @@ public class Contact {
     @Column(name = "CS_Note")
     private String note;
     @Column(name = "CreatedOn")
-    private Date createdOn;
+    private Timestamp createdOn;
     @Column(name = "Freeze")
     private int freeze;
+
     @Column(name = "CL_ID")
     private int clientID;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "CL_ID", insertable = false, updatable = false)
+    private Client client12;
+
     @Column(name = "Created_By")
     private int createdBy;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "Created_By", insertable = false, updatable = false)
+    private Users users;
 
-    public Contact(){
+    @JsonManagedReference(value = "coEmailLists")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "contactEmailList")
+    private List<EmailList> coEmailLists;
+
+    @JsonManagedReference(value = "coPhoneLists")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "contactPhoneList")
+    private List<PhoneList> coPhoneLists;
+
+    @JsonManagedReference(value = "coNoteList")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "contactNoteList")
+    private List<Note> coNoteList;
+
+    public Contact() {
 
     }
-    public Contact(int contactID, String firstName, String lastName, Date dateOfBirth, String address, String city, String country,
-                   String note, Date createdOn, int freeze, int clientID, int createdBy) {
-        this.contactID = contactID;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.dateOfBirth = dateOfBirth;
-        this.address = address;
-        this.city = city;
-        this.country = country;
-        this.note = note;
-        this.createdOn = createdOn;
-        this.freeze = freeze;
-        this.clientID = clientID;
-        this.createdBy = createdBy;
+
+    public List<Note> getCoNoteList() {
+        return coNoteList;
+    }
+
+    public void setCoNoteList(List<Note> noteList) {
+        this.coNoteList = noteList;
+    }
+
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
+    }
+
+    public Client getClient12() {
+        return client12;
+    }
+
+    public void setClient12(Client client) {
+        this.client12 = client;
+    }
+
+    public List<EmailList> getCoEmailLists() {
+        return coEmailLists;
+    }
+
+    public void setCoEmailLists(List<EmailList> emailLists) {
+        this.coEmailLists = emailLists;
+    }
+
+    public List<PhoneList> getCoPhoneLists() {
+        return coPhoneLists;
+    }
+
+    public void setCoPhoneLists(List<PhoneList> phoneLists) {
+        this.coPhoneLists = phoneLists;
     }
 
     public int getContactID() {
@@ -76,11 +135,11 @@ public class Contact {
         this.lastName = lastName;
     }
 
-    public Date getDateOfBirth() {
+    public Timestamp getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(Timestamp dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -117,11 +176,11 @@ public class Contact {
         this.note = note;
     }
 
-    public Date getCreatedOn() {
+    public Timestamp getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
+    public void setCreatedOn(Timestamp createdOn) {
         this.createdOn = createdOn;
     }
 
@@ -151,19 +210,24 @@ public class Contact {
 
     @Override
     public String toString() {
-        return "Contact_Store{" +
-                "contact_ID=" + contactID +
-                ", cs_FirstName='" + firstName + '\'' +
-                ", cs_LastName='" + lastName + '\'' +
-                ", cs_DateOfBirth=" + dateOfBirth +
-                ", cs_Address='" + address + '\'' +
-                ", cs_City='" + city + '\'' +
-                ", cs_Country='" + country + '\'' +
-                ", cs_Note='" + note + '\'' +
-                ", createdDone=" + createdOn +
+        return "Contact{" +
+                "contactID=" + contactID +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", country='" + country + '\'' +
+                ", note='" + note + '\'' +
+                ", createdOn=" + createdOn +
                 ", freeze=" + freeze +
-                ", client_ID=" + clientID +
-                ", created_By=" + createdBy +
+                ", clientID=" + clientID +
+                ", client12=" + client12 +
+                ", createdBy=" + createdBy +
+                ", users=" + users +
+                ", coEmailLists=" + coEmailLists +
+                ", coPhoneLists=" + coPhoneLists +
+                ", coNoteList=" + coNoteList +
                 '}';
     }
 }

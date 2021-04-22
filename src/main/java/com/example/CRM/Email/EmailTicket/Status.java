@@ -3,6 +3,8 @@ package com.example.CRM.Email.EmailTicket;
 public enum Status{
     UNLOCKED,
     LOCKED,
-    SOLVED
+    SOLVED,
+    ALLOCATED,
+    RESOLVED
 }
 

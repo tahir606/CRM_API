@@ -1,43 +1,63 @@
 package com.example.CRM;
 
+import com.example.CRM.Client.ClientController;
 import com.example.CRM.Email.EmailGeneral.EmailGeneralController;
 import com.example.CRM.Email.EmailSent.EmailSentController;
 import com.example.CRM.Email.EmailTicket.EmailTicketController;
 import com.example.CRM.Email.EmailTicket.EmailTicketsRepository;
+import com.example.CRM.Email.History.HistoryController;
 import com.example.CRM.JCode.EmailDBHandler;
 import com.example.CRM.Note.NoteController;
 import com.example.CRM.User.UserController;
+
+import org.apache.catalina.connector.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
-
 
 
 // mine
 @Configuration
+
 public class Config {
 
     private static final Logger log = LoggerFactory.getLogger(Config.class);
 
     @Bean
-    CommandLineRunner initDatabase(EmailDBHandler emailDBHandler, EmailSentController emailSentController, EmailTicketController emailTicketController
-            , EmailGeneralController emailGeneralController, UserController userController, EmailTicketsRepository emailTicketsRepository, NoteController noteController) {
+    CommandLineRunner initDatabase(EmailDBHandler emailDBHandler, ClientController clientController, EmailSentController emailSentController, EmailTicketController emailTicketController
+            , EmailGeneralController emailGeneralController, HistoryController historyController, UserController userController, EmailTicketsRepository emailTicketsRepository, NoteController noteController) {
         return args -> {
 //            log.debug("Read email sent: " + emailDBHandler.readAllEmailsSent(1));
 //            log.debug("Read email store: " + emailDBHandler.readAllEmailsStore());
@@ -55,6 +75,8 @@ public class Config {
 //            log.debug("sorry:"+emailTicketController.all());
 //            log.debug("test:"+noteController.deleteUser(340,637));
 //            log.debug("test:"+emailDBHandler.maxTicketNo());
+//            log.debug("test:"+historyController.getHistory(1027));
+//            log.debug("test:" + clientController.all());
         };
     }
 
@@ -64,6 +86,7 @@ public class Config {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setUrl(env.getProperty("spring.datasource.url"));
         dataSource.setUsername(env.getProperty("spring.datasource.username"));
+        dataSource.setPassword(env.getProperty("spring.datasource.password"));
         return dataSource;
     }
 
@@ -136,5 +159,24 @@ public class Config {
     @Autowired
     private LocalContainerEntityManagerFactoryBean entityManagerFactory;
 
+    // for encoding
+    @Bean
+    public HttpFirewall allowUrlEncodedPercentHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowUrlEncodedPercent(true);
+        return firewall;
+    }
 
+////    for jkson
+//
+//    @Bean
+//    public HttpMessageConverters customConverters() {
+//
+//        Collection<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+//
+//        GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
+//        messageConverters.add(gsonHttpMessageConverter);
+//
+//        return new HttpMessageConverters(true, messageConverters);
+//    }
 }

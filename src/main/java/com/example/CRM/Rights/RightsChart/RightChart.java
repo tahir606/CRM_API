@@ -1,9 +1,12 @@
 package com.example.CRM.Rights.RightsChart;
 
+import com.example.CRM.Rights.RightsList;
+import com.example.CRM.User.Users;
+
 import javax.persistence.*;
 
-@Entity
-@Table(name = "rights_chart")
+@Entity(name = "rights_chart")
+//@Table(name = "rights_chart")
 public class RightChart {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -11,15 +14,29 @@ public class RightChart {
     private int rightsChartId;
     @Column(name = "Rights_Code")
     private int rightsCode;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "Rights_Code", insertable = false, updatable = false)
+    private RightsList rightsList;
     @Column(name = "User_CODE")
     private int userCode;
+
     public RightChart(){
 
     }
-    public RightChart(int rightsChartId, int rightsCode, int userCode) {
+
+    public RightChart(int rightsChartId, int rightsCode, RightsList rightsList, int userCode) {
         this.rightsChartId = rightsChartId;
         this.rightsCode = rightsCode;
+        this.rightsList = rightsList;
         this.userCode = userCode;
+    }
+
+    public RightsList getRightsList() {
+        return rightsList;
+    }
+
+    public void setRightsList(RightsList rightsList) {
+        this.rightsList = rightsList;
     }
 
     public int getRightsChartId() {

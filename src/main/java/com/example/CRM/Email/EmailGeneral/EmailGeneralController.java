@@ -4,6 +4,7 @@ import com.example.CRM.Email.Email;
 import com.example.CRM.Email.EmailTicket.EmailNotFoundException;
 import com.example.CRM.Email.EmailTicket.EmailSystem;
 import com.example.CRM.Email.EmailTicket.EmailTickets;
+import com.example.CRM.Email.Setiings.EmailSettings;
 import com.example.CRM.JCode.EmailDBHandler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,20 +60,29 @@ public class EmailGeneralController {
 
     @RequestMapping("/ticket/{code}")
     public boolean createTicketFromGeneral(@PathVariable int code) throws IOException, MessagingException {
+        EmailSettings emailSettings = emailDBHandler.getSettings();
         Email email = emailGeneralRepository.findById(code)//
                 .orElseThrow(() -> new EmailNotFoundException(code));
+
         EmailTickets emailTickets = convertToEmailTicket(email);
         emailTickets.setTicketNo(emailDBHandler.maxTicketNo());
         emailDBHandler.insertEmail(emailTickets);
-        if (emailSystem.autoReplyTicket(emailTickets)) {
+        if (emailSettings.getAutoCheck() != 0) {
+            if (emailSystem.autoReplyTicket(emailTickets)) {
+                email.setFreeze(1);
+                emailDBHandler.insertEmail(email);
+            }
+        } else {
             email.setFreeze(1);
             emailDBHandler.insertEmail(email);
         }
+
         return true;
     }
+
     @RequestMapping("/archive/{code}")
     public boolean moveToArchive(@PathVariable int code) {
-        EmailGeneral emailGeneral =emailDBHandler.findSelectedGeneralEmail(code);
+        EmailGeneral emailGeneral = emailDBHandler.findSelectedGeneralEmail(code);
         emailGeneral.setFreeze(1);
         emailDBHandler.insertEmail(emailGeneral);
         return true;
@@ -82,6 +93,7 @@ public class EmailGeneralController {
         emailTickets.setToAddress(email.getFromAddress());
         emailTickets.setFromAddress(email.getFromAddress());
         emailTickets.setCcAddress(email.getCcAddress());
+        emailTickets.setBccAddress(email.getBccAddress());
         emailTickets.setTimestamp(email.getTimestamp());
         emailTickets.setAttachment(email.getAttachment());
         emailTickets.setSubject(email.getSubject());
@@ -89,13 +101,5 @@ public class EmailGeneralController {
 
         return emailTickets;
     }
-
-//    @PostMapping
-//    ResponseEntity<?> newEmailGeneral(@RequestBody EmailGeneral email_general) {
-//        EntityModel<EmailGeneral> entityModel = email_generalModelAssembler.toModel(emailGeneralRepository.save(email_general));
-//        return ResponseEntity //
-//                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
-//                .body(entityModel);
-//    }
 
 }

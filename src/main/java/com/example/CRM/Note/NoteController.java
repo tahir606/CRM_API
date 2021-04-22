@@ -65,17 +65,19 @@ public class NoteController {
                 .body(entityModel);
     }
 
-    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
 
     @RequestMapping("/addNote")
     public boolean addNote(@RequestBody Note note) {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         note.setCreatedOn(timestamp);
-        emailDBHandler.insertNotes(note);
+       emailDBHandler.insertNotes(note);
         return true;
     }
 
     @RequestMapping("/updateNote")
     public boolean updateNote(@RequestParam int noteCode, @RequestParam String noteText) {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         Note notesUpdate = emailDBHandler.findNote(noteCode);
 
         notesUpdate.setText(noteText);

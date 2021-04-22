@@ -29,7 +29,7 @@ public class EmailSentController {
     private final EmailSystem emailSystem;
     private final EmailDBHandler emailDBHandler;
 
-    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
 
     public EmailSentController(EmailSentRepository email_sentRepository, EmailSentModelAssembler email_sentModelAssembler, EmailSystem emailSystem, EmailDBHandler emailDBHandler) {
         this.email_sentRepository = email_sentRepository;
@@ -69,6 +69,7 @@ public class EmailSentController {
     @RequestMapping("/send/{userCode}")
     public boolean sendEmail(@RequestPart("email") Email email, @RequestParam("files") MultipartFile[] files, @PathVariable int userCode) throws AddressException, MessagingException, IOException {
         String address = emailSystem.getSingleAddress(email.getToAddress());
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         email.setTimestamp(timestamp);
         Arrays.asList(files)
                 .stream()
@@ -106,7 +107,6 @@ public class EmailSentController {
     }
     @PostMapping
     ResponseEntity<?> newEmailSent(@RequestBody EmailSent email) {
-
         EntityModel<EmailSent> entityModel = email_sentModelAssembler.toModel(email_sentRepository.save(email));
 
         return ResponseEntity //

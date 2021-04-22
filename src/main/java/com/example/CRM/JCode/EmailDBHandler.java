@@ -1,15 +1,20 @@
 package com.example.CRM.JCode;
 
+import com.example.CRM.Client.Client;
+import com.example.CRM.Client.ClientCustomQueryRepository;
+import com.example.CRM.Contact.Contact;
+import com.example.CRM.Contact.ContactRepository;
+import com.example.CRM.Domain.Domain;
 import com.example.CRM.Domain.DomainListRepository;
 import com.example.CRM.Email.Email;
 import com.example.CRM.Email.EmailGeneral.EmailGeneral;
 import com.example.CRM.Email.EmailGeneral.EmailGeneralRepository;
+import com.example.CRM.Email.EmailList.EmailList;
+import com.example.CRM.Email.EmailList.EmailListCustomQuery;
+import com.example.CRM.Email.EmailList.EmailListRepository;
 import com.example.CRM.Email.EmailSent.EmailSent;
 import com.example.CRM.Email.EmailSent.EmailSentRepository;
-import com.example.CRM.Email.EmailTicket.EmailNotFoundException;
-import com.example.CRM.Email.EmailTicket.EmailTicketCustomQueryRepository;
-import com.example.CRM.Email.EmailTicket.EmailTicketsRepository;
-import com.example.CRM.Email.EmailTicket.EmailTickets;
+import com.example.CRM.Email.EmailTicket.*;
 import com.example.CRM.Email.History.HistoryRepository;
 import com.example.CRM.Email.History.TicketHistory;
 import com.example.CRM.Email.Setiings.EmailSettings;
@@ -17,12 +22,21 @@ import com.example.CRM.Email.Setiings.SettingRepository;
 import com.example.CRM.Note.Note;
 import com.example.CRM.Note.NoteNotFoundException;
 import com.example.CRM.Note.NoteRepository;
+import com.example.CRM.Phone.PhoneListCustomQuery;
+import com.example.CRM.Rights.RightsChart.RightChart;
+import com.example.CRM.Rights.RightsChart.RightsChartCustomQueryRepository;
+import com.example.CRM.Rights.RightsChart.RightsRepository;
+import com.example.CRM.User.UserCustomQueryRepository;
 import com.example.CRM.User.UserNotFoundException;
 import com.example.CRM.User.UserRepository;
 import com.example.CRM.User.Users;
+import com.example.CRM.keyword.Keyword;
+import com.example.CRM.keyword.KeywordRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,9 +50,22 @@ public class EmailDBHandler {
     private final EmailTicketCustomQueryRepository emailTicketCustomQueryRepository;
     private final HistoryRepository historyRepository;
     private final NoteRepository noteRepository;
+    private final RightsRepository rightsRepository;
+    private final RightsChartCustomQueryRepository rightsChartCustomQueryRepository;
+    private final KeywordRepository keywordRepository;
+    private final UserCustomQueryRepository userCustomQueryRepository;
+    private final EmailListRepository emailListRepository;
+    private final EmailListCustomQuery emailListCustomQuery;
+    private final ContactRepository contactRepository;
+    private final PhoneListCustomQuery phoneListCustomQuery;
+    private final ClientCustomQueryRepository clientCustomQueryRepository;
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-    public EmailDBHandler(EmailTicketsRepository emailTicketsRepository, SettingRepository settingRepository, EmailSentRepository emailSentRepository, EmailGeneralRepository emailGeneralRepository, DomainListRepository domainListRepository, UserRepository userRepository, EmailTicketCustomQueryRepository emailTicketCustomQueryRepository, HistoryRepository historyRepository, NoteRepository noteRepository) {
+    public EmailDBHandler(EmailTicketsRepository emailTicketsRepository, SettingRepository settingRepository, EmailSentRepository emailSentRepository,
+                          EmailGeneralRepository emailGeneralRepository, DomainListRepository domainListRepository, UserRepository userRepository,
+                          EmailTicketCustomQueryRepository emailTicketCustomQueryRepository, HistoryRepository historyRepository,
+                          NoteRepository noteRepository, RightsRepository rightsRepository, RightsChartCustomQueryRepository rightsChartCustomQueryRepository,
+                          KeywordRepository keywordRepository, UserCustomQueryRepository userCustomQueryRepository, EmailListRepository emailListRepository, EmailListCustomQuery emailListCustomQuery, ContactRepository contactRepository, PhoneListCustomQuery phoneListCustomQuery, ClientCustomQueryRepository clientCustomQueryRepository) {
         this.emailTicketsRepository = emailTicketsRepository;
         this.settingRepository = settingRepository;
         this.emailSentRepository = emailSentRepository;
@@ -48,13 +75,22 @@ public class EmailDBHandler {
         this.emailTicketCustomQueryRepository = emailTicketCustomQueryRepository;
         this.historyRepository = historyRepository;
         this.noteRepository = noteRepository;
+        this.rightsRepository = rightsRepository;
+        this.rightsChartCustomQueryRepository = rightsChartCustomQueryRepository;
+        this.keywordRepository = keywordRepository;
+        this.userCustomQueryRepository = userCustomQueryRepository;
+        this.emailListRepository = emailListRepository;
+        this.emailListCustomQuery = emailListCustomQuery;
+        this.contactRepository = contactRepository;
+        this.phoneListCustomQuery = phoneListCustomQuery;
+        this.clientCustomQueryRepository = clientCustomQueryRepository;
     }
 
     public Email insertEmail(Email email) {
         if (email instanceof EmailTickets) {
             return emailTicketsRepository.save((EmailTickets) email);
         } else if (email instanceof EmailSent) {
-            ((EmailSent) email).setSent(1);
+//            ((EmailSent) email).setSent(1);
             return emailSentRepository.save((EmailSent) email);
         } else if (email instanceof EmailGeneral) {
             return emailGeneralRepository.save((EmailGeneral) email);
@@ -62,7 +98,7 @@ public class EmailDBHandler {
         return null;
     }
 
-    public EmailTickets getMaxTicketNo(){
+    public EmailTickets getMaxTicketNo() {
         return emailTicketsRepository.findFirstByOrderByTicketNoDesc();
     }
 
@@ -73,27 +109,34 @@ public class EmailDBHandler {
     public Note insertNotes(Note note) {
         return noteRepository.save(note);
     }
-    public Note findNote(int noteId){
+
+    public Note findNote(int noteId) {
         return noteRepository.findById(noteId)//
                 .orElseThrow(() -> new NoteNotFoundException(noteId));
     }
+
     public List<EmailTickets> filteredEmails(String filter) {
         return emailTicketCustomQueryRepository.getFilterEmail(filter);
     }
 
     public int maxTicketNo() {
-       int ticketNo =emailTicketsRepository.findFirstByOrderByTicketNoDesc().getTicketNo()+1;
+        int ticketNo = emailTicketsRepository.findFirstByOrderByTicketNoDesc().getTicketNo() + 1;
         return ticketNo;
     }
 
-    public EmailTickets searchEmail(int code , int freeze) {
-        return emailTicketsRepository.findByTicketNoAndFreeze( code,freeze);
+    public EmailTickets searchEmail(int code, int freeze) {
+        return emailTicketsRepository.findByTicketNoAndFreeze(code, freeze);
     }
 
     public EmailTickets findSelectedEmail(int code) {
         return emailTicketsRepository.findById(code)//
-        .orElseThrow(()-> new EmailNotFoundException(code)) ;
+                .orElseThrow(() -> new EmailNotFoundException(code));
     }
+
+    public int getSolvedOrLockedEmails(int status, int userId) {
+        return emailTicketCustomQueryRepository.getSolvedOrLockedEmails(status, userId);
+    }
+
     public EmailGeneral findSelectedGeneralEmail(int code) {
         return emailGeneralRepository.findById(code)//
                 .orElseThrow(() -> new EmailNotFoundException(code));
@@ -109,8 +152,21 @@ public class EmailDBHandler {
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    public List<String> whiteListDomain(int wbList) {
+    public List<Domain> whiteListDomain(int wbList) {
         return domainListRepository.findNameByWhiteBlackList(wbList);
+    }
+
+    public List<String> getKeywords() {
+        List<String> keywords = new ArrayList<>();
+        try {
+            for (Keyword keyword : keywordRepository.findAll()) {
+                keywords.add(keyword.getKeywordName());
+            }
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+
+        return keywords;
     }
 
     public EmailSettings getSettings() {
@@ -129,33 +185,83 @@ public class EmailDBHandler {
         return emailTicketsRepository.findAll();
     }
 
-//    public List<EmailTickets> readAllSolvedEmails(char solve) {
-//        return emailTicketsRepository.findBySolved(solve);
-//    }
+    public int getOfUnLockedEmails() {
+        return emailTicketCustomQueryRepository.getOfUnLockedEmails();
+    }
 
-//    public List<EmailTickets> readAllLockedEmails() {
-//        return emailTicketsRepository.findByLocked(1);
-//    }
-//
+    public int getOfUnSolvedEmails() {
+        return emailTicketCustomQueryRepository.getOfUnSolvedEmails();
 
-//    public int getNoOfLockedUnlockedEmailsByUser(int locked, int solvedBy) {
-//        if (locked == 1) {
-//            return emailTicketsRepository.countByLockedAndSolvedBy(locked, solvedBy);
-//        } else {
-//            return emailTicketsRepository.countByLockedAndSolvedBy(locked, solvedBy);
-//        }
-//    }
+    }
 
-//    public int getLatestEmailNo() {
-//        return ticketsRepository.findTopByOrderByCodeDesc();
-//    }
+    public boolean insertUser(Users users) {
+        try {
+            userRepository.save(users);
+        } catch (Exception e) {
+            e.getLocalizedMessage();
+            return false;
+        }
+        return true;
+    }
 
-//    public int getNoOfSolvedEmailsByUser(char solve, int solveBy) {
-//        if (solve == 'Y') {
-//            return emailTicketsRepository.countBySolvedAndSolvedBy(solve, solveBy);
-//        } else {
-//            return emailTicketsRepository.countBySolvedAndSolvedBy(solve, solveBy);
-//        }
-//    }
+    public boolean deleteRightsChartByUserCode(int userCode) {
+        try {
+            rightsChartCustomQueryRepository.deleteRights(userCode);
+        } catch (Exception e) {
 
+            e.getLocalizedMessage();
+            return false;
+        }
+        return true;
+    }
+
+    public void insertRightsChart(RightChart rightChart) {
+        rightsRepository.save(rightChart);
+    }
+
+    public List<Users> getCountEmailStatus(String filter) {
+        return userCustomQueryRepository.getCountEmailStatus(filter);
+    }
+    public List<Users> averageCalculate() {
+        return userCustomQueryRepository.averageCalculate();
+    }
+    public List<EmailTickets> getTicketsSolvedByUserDetails(int userCode, String filter) {
+       return emailTicketCustomQueryRepository.ticketsSolvedByUserDetails(userCode, filter);
+    }
+    public  List<EmailTickets> clientReportWithDomain(int clientId,String filter){
+        return emailTicketCustomQueryRepository.clientReportWithDomain(clientId,filter);
+    }
+
+    public List<Client> emailsPerClient(String filter) {
+        return clientCustomQueryRepository.emailsPerClient(filter);
+    }
+
+    public void insertEmailList(List<EmailList> combinedList3) {
+        for (EmailList email : combinedList3) {
+            try {
+                emailListRepository.save(email);
+            } catch (DataIntegrityViolationException e) {
+                e.getLocalizedMessage();
+            }
+
+        }
+    }
+
+    public boolean insertContact(Contact contact) {
+        try {
+            contactRepository.save(contact);
+        } catch (Exception e) {
+            e.getLocalizedMessage();
+            return false;
+        }
+        return true;
+    }
+
+    public void deleteEmailListSingleRow(int code) {
+        emailListCustomQuery.deleteEmailListRow(code);
+    }
+
+    public void deletePhoneListSingleRow(int code) {
+        phoneListCustomQuery.deletePhoneListRow(code);
+    }
 }

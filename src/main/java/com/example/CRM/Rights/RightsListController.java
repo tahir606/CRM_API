@@ -1,5 +1,7 @@
 package com.example.CRM.Rights;
 
+import com.example.CRM.Rights.RightsChart.RightChart;
+import com.example.CRM.Rights.RightsChart.RightController;
 import com.example.CRM.User.UserController;
 import com.example.CRM.User.UserNotFoundException;
 import com.example.CRM.User.Users;
@@ -26,6 +28,7 @@ public class RightsListController {
         this.rightsListRepository = rightsListRepository;
         this.rightsListModelAssembler = rightsListModelAssembler;
     }
+
     @GetMapping("/{id}")
     EntityModel<RightsList> one(@PathVariable int id) {
 
@@ -34,6 +37,7 @@ public class RightsListController {
 
         return rightsListModelAssembler.toModel(rightsList);
     }
+
     @GetMapping
     CollectionModel<EntityModel<RightsList>> all() {
 
@@ -42,6 +46,24 @@ public class RightsListController {
                 .collect(Collectors.toList());
 
         return CollectionModel.of(rightsList, linkTo(methodOn(RightsListController.class).all()).withSelfRel());
+    }
+
+    @RequestMapping("/getRightList")
+    public CollectionModel<EntityModel<RightsList>> getRightList() {
+
+        List<EntityModel<RightsList>> rightsList = rightsListRepository.findAll().stream() //
+                .map(rightsListModelAssembler::toModel) //
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(rightsList, linkTo(methodOn(RightsListController.class).all()).withSelfRel());
+    }
+
+    @RequestMapping("/addRights")
+    public void addRights(@RequestBody List<RightsList> rightsList) {
+        for (RightsList rights : rightsList) {
+            rightsListRepository.save(rights);
+        }
+
     }
 
     @PostMapping
@@ -53,22 +75,23 @@ public class RightsListController {
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
                 .body(entityModel);
     }
+
     @PutMapping("/{id}")
     ResponseEntity<?> updateRightList(@RequestBody RightsList rightsList, @PathVariable int id) {
         RightsList rightsListUpdate = rightsListRepository.findById(id)//
-            .map(rights -> {
-                rights.setFreeze(rightsList.getFreeze());
-                rights.setName(rightsList.getName());
-                return rightsListRepository.save(rights);
-            })//
-            .orElseGet(()->{
-                rightsList.setRightsCode(id);
-                return rightsListRepository.save(rightsList );
-            });
+                .map(rights -> {
+                    rights.setFreeze(rightsList.getFreeze());
+                    rights.setName(rightsList.getName());
+                    return rightsListRepository.save(rights);
+                })//
+                .orElseGet(() -> {
+                    rightsList.setRightsCode(id);
+                    return rightsListRepository.save(rightsList);
+                });
         EntityModel<RightsList> rightsListEntityModel = rightsListModelAssembler.toModel(rightsListUpdate);
         return ResponseEntity//
-            .created(rightsListEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())//
-            .body(rightsListEntityModel);
+                .created(rightsListEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())//
+                .body(rightsListEntityModel);
     }
 }
 

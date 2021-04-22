@@ -9,6 +9,8 @@ import java.util.Optional;
 
 public interface DomainListRepository extends JpaRepository<Domain, Integer> {
 
-    @Query(value = "select d.name from domain_list d ",nativeQuery = true)
-    List<String> findNameByWhiteBlackList(int domain);
+//    @Query(value = "select d.name from domain_list d where d.name =:1",nativeQuery = true)
+    List<Domain> findNameByWhiteBlackList(int domain);
+
+    List<Domain> findAllByWhiteBlackList(int id);
 }

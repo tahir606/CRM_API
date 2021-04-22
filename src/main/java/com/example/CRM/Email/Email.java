@@ -1,16 +1,24 @@
 package com.example.CRM.Email;
+
 import javax.mail.Address;
 import javax.persistence.*;
 
 import com.example.CRM.Email.EmailGeneral.EmailGeneral;
 import com.example.CRM.Email.EmailSent.EmailSent;
 import com.example.CRM.Email.EmailTicket.EmailTickets;
+import com.example.CRM.JCode.StringListConverter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 import javax.persistence.Id;
+
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
@@ -21,38 +29,55 @@ import javax.persistence.Id;
         @Type(value = EmailSent.class, name = "sent"),
         @Type(value = EmailTickets.class, name = "ticket"),
 })
-public abstract class Email {
+public abstract class Email implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = "email_no")
     private int code;
+
     @Column(name = "message_no")
     private int messageNo;
+
     @Column(name = "subject")
     private String subject;
+
     @Column(name = "to_address")
-    private String toAddress;
+    @Convert(converter = StringListConverter.class)
+    private List<String> toAddress;
+
     @Column(name = "from_address")
-    private String fromAddress;
+    @Convert(converter = StringListConverter.class)
+    private List<String> fromAddress;
+
     @Column(name = "cc_address")
-    private String ccAddress;
+    @Convert(converter = StringListConverter.class)
+    private List<String> ccAddress;
+
     @Column(name = "bcc_address")
-    private String bccAddress;
+    @Convert(converter = StringListConverter.class)
+    private List<String> bccAddress;
+
+
     @Column(name = "body")
     private String body;
+
     @Column(name = "attachment")
-    private String attachment;
+    @Convert(converter = StringListConverter.class)
+    private List<String> attachment;
+
     @Column(name = "Timestamp")
     private Timestamp timestamp;
+
     @Column(name = "freeze")
-    private int freeze=0;
+    private int freeze = 0;
+
     public Email() {
     }
 
 
-    public Email(int code, int messageNo, String subject, String toAddress, String fromAddress,String ccAddress,String bccAddress,
-                 String body, String attachment, Timestamp timestamp, int freeze) {
+    public Email(int code, int messageNo, String subject, List<String> toAddress, List<String> fromAddress, List<String> ccAddress, List<String> bccAddress,
+                 String body, List<String> attachment, Timestamp timestamp, int freeze) {
         this.code = code;
         this.messageNo = messageNo;
         this.subject = subject;
@@ -65,6 +90,14 @@ public abstract class Email {
         this.timestamp = timestamp;
         this.freeze = freeze;
     }
+
+    public Email(int code, List<String> fromAddress, String subject, Timestamp timestamp) {
+        this.code = code;
+        this.fromAddress = fromAddress;
+        this.subject = subject;
+        this.timestamp = timestamp;
+    }
+
 
 
     public int getCode() {
@@ -91,36 +124,36 @@ public abstract class Email {
         this.subject = subject;
     }
 
-    public String getToAddress() {
+
+    public List<String> getToAddress() {
         return toAddress;
     }
 
-    public void setToAddress(String toAddress) {
+    public void setToAddress(List<String> toAddress) {
         this.toAddress = toAddress;
     }
 
-    public String getFromAddress() {
+    public List<String> getFromAddress() {
         return fromAddress;
     }
 
-    public void setFromAddress(String fromAddress) {
+    public void setFromAddress(List<String> fromAddress) {
         this.fromAddress = fromAddress;
     }
 
-
-    public String getCcAddress() {
+    public List<String> getCcAddress() {
         return ccAddress;
     }
 
-    public void setCcAddress(String ccAddress) {
+    public void setCcAddress(List<String> ccAddress) {
         this.ccAddress = ccAddress;
     }
 
-    public String getBccAddress() {
+    public List<String> getBccAddress() {
         return bccAddress;
     }
 
-    public void setBccAddress(String bccAddress) {
+    public void setBccAddress(List<String> bccAddress) {
         this.bccAddress = bccAddress;
     }
 
@@ -132,13 +165,14 @@ public abstract class Email {
         this.body = body;
     }
 
-    public String getAttachment() {
+    public List<String> getAttachment() {
         return attachment;
     }
 
-    public void setAttachment(String attachment) {
+    public void setAttachment(List<String> attachment) {
         this.attachment = attachment;
     }
+
 
     public Timestamp getTimestamp() {
         return timestamp;

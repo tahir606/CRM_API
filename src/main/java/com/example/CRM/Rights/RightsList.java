@@ -2,8 +2,8 @@ package com.example.CRM.Rights;
 
 import javax.persistence.*;
 
-@Entity
-@Table(name = "rights_list")
+@Entity(name = "rights_list")
+//@Table(name = "rights_list")
 public class RightsList {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

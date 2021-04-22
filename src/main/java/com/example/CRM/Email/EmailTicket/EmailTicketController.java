@@ -1,7 +1,8 @@
 package com.example.CRM.Email.EmailTicket;
 
+import com.example.CRM.Client.ClientSystem;
 import com.example.CRM.Email.Email;
-import com.example.CRM.Email.EmailSent.EmailSent;
+import com.example.CRM.Email.Setiings.EmailSettings;
 import com.example.CRM.JCode.EmailDBHandler;
 import org.hibernate.engine.jdbc.StreamUtils;
 import org.slf4j.Logger;
@@ -39,20 +40,17 @@ public class EmailTicketController {
     private final EmailSystem emailSystem;
     private final EmailDBHandler emailDBHandler;
     private final EmailTicketCustomQueryRepository queryRepository;
-
-
-    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+    private final ClientSystem clientSystem;
 
     private static final Logger log = LoggerFactory.getLogger(EmailTicketController.class);
-//    @Autowired
-//    private FileStorageService fileStorageService;
 
-    public EmailTicketController(EmailTicketsRepository emailTicketsRepository, EmailModelAssembler emailModelAssembler, EmailSystem emailSystem, EmailDBHandler emailDBHandler, EmailTicketCustomQueryRepository queryRepository) {
+    public EmailTicketController(EmailTicketsRepository emailTicketsRepository, EmailModelAssembler emailModelAssembler, EmailSystem emailSystem, EmailDBHandler emailDBHandler, EmailTicketCustomQueryRepository queryRepository, ClientSystem clientSystem) {
         this.emailTicketsRepository = emailTicketsRepository;
         this.emailModelAssembler = emailModelAssembler;
         this.emailSystem = emailSystem;
         this.emailDBHandler = emailDBHandler;
         this.queryRepository = queryRepository;
+        this.clientSystem = clientSystem;
     }
 
 
@@ -83,32 +81,39 @@ public class EmailTicketController {
         return CollectionModel.of(email, linkTo(methodOn(EmailTicketController.class).all()).withSelfRel());
     }
 
+    @RequestMapping("/getNewEmails/{ticketNo}")
+    public CollectionModel<EntityModel<EmailTickets>> readAllFilterEmails(@PathVariable int ticketNo) {
+        List<EntityModel<EmailTickets>> email = queryRepository.getNewEmails(ticketNo).stream()//
+                .map(emailModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(email, linkTo(methodOn(EmailTicketController.class).all()).withSelfRel());
+    }
+
     @RequestMapping("/email/{code}")
     public EmailTickets searchEmail(@PathVariable int code) {
         EmailTickets email = emailDBHandler.searchEmail(code, 0);
         return email;
     }
 
-//    @RequestMapping("/solved/{type}")
-//    public CollectionModel<EntityModel<EmailTickets>> readAllSolvedEmails(@PathVariable char type){
-//        List<EntityModel<EmailTickets>> email =emailTicketsRepository.findBySolved(type).stream() //
-//                .map(emailModelAssembler::toModel) //
-//                .collect(Collectors.toList());
-//
-//        return CollectionModel.of(email, linkTo(methodOn(EmailTicketController.class).all()).withSelfRel());
-//
-//    }
+    @RequestMapping("/ticketsSolvedByUserDetails/{userCode}")
+    public List<EmailTickets> ticketsSolvedByUserDetails(@PathVariable int userCode, @RequestParam String filter) {
+        String filterTicket = clientSystem.filterTime(filter);
+        List<EmailTickets> email = emailDBHandler.getTicketsSolvedByUserDetails(userCode, filterTicket);
+        return email;
+    }
+    @RequestMapping("/clientReportWithDomain/{clientId}")
+    public List<EmailTickets> clientReportWithDomain(@PathVariable int clientId, @RequestParam String filter) {
 
-//        @PostMapping
-//    public ResponseEntity<?> insertEmail(@RequestBody Email emailTickets) {
-//        EntityModel<EmailTickets> entityModel = emailModelAssembler.toModel((EmailTickets) emailDBHandler.insertEmail(emailTickets));
-//        return ResponseEntity //
-//                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
-//                .body(entityModel);
-//    }
+        String filterTicket = clientSystem.filterTime(filter);
+        List<EmailTickets> email = emailDBHandler.clientReportWithDomain(clientId, filterTicket);
 
+        return email;
+    }
     @RequestMapping("/create/{userCode}")
     public boolean sendEmail(@RequestPart("email") Email email, @RequestParam("files") MultipartFile[] files, @PathVariable int userCode) throws AddressException, MessagingException, IOException {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        EmailSettings emailSettings = emailDBHandler.getSettings();
+
         String address = emailSystem.getSingleAddress(email.getToAddress());
         Arrays.asList(files)
                 .stream()
@@ -127,14 +132,19 @@ public class EmailTicketController {
         emailTickets.setTimestamp(timestamp);
         emailTickets.setTicketNo(emailDBHandler.maxTicketNo());
 
-        emailTickets.setFromAddress(emailTickets.getToAddress());
+        emailTickets.setFromAddress(email.getToAddress());
         emailTickets.setAttachment(emailSystem.setAttachmentPath(files, address));
         emailTickets.setStatus(Status.UNLOCKED);
         emailTickets.setManualEmail(userCode);
+
         emailDBHandler.insertEmail(emailTickets);
 
-        emailSystem.autoReplyTicket(emailTickets);
+        if (emailSettings.getAutoCheck() != 0) {
+            if (!emailTickets.isSendAsEmail()) {
+                emailSystem.autoReplyTicket(emailTickets);
+            }
 
+        }
         return true;
     }
 
@@ -159,6 +169,7 @@ public class EmailTicketController {
 
     @RequestMapping("/statusCheck")
     public boolean checkForStatus(@RequestParam int code, @RequestParam Status status) {
+
         Status checkStatus = emailTicketsRepository.findByCode(code).getStatus();
         if (!checkStatus.equals(status)) {
             return true;
@@ -175,43 +186,110 @@ public class EmailTicketController {
             return false;
         }
     }
+
     @RequestMapping("/getMaxTicketNo")
     public EntityModel<EmailTickets> getMaxTicketNo() {
-        EmailTickets emailTickets =emailDBHandler.getMaxTicketNo();
+        EmailTickets emailTickets = emailDBHandler.getMaxTicketNo();
 
         return emailModelAssembler.toModel(emailTickets);
     }
 
+    @RequestMapping("/updatedStatus/{ticketNo}")
+    public EntityModel<EmailTickets> getUpdatedEmail(@PathVariable int ticketNo) {
+        EmailTickets emailTickets = emailTicketsRepository.findById(ticketNo)//
+                .orElseThrow(() -> new EmailNotFoundException(ticketNo));
+
+        return emailModelAssembler.toModel(emailTickets);
+    }
 
     @RequestMapping("/updateEmails/{ticketNo}")
     public CollectionModel<EntityModel<EmailTickets>> getUpdateEmails(@PathVariable int ticketNo) {
-        System.out.println(ticketNo);
+
         List<EntityModel<EmailTickets>> email = emailTicketsRepository.findByTicketNoGreaterThan(ticketNo).stream() //
                 .map(emailModelAssembler::toModel) //
                 .collect(Collectors.toList());
-        System.out.println(email);
+
         return CollectionModel.of(email, linkTo(methodOn(EmailTicketController.class).all()).withSelfRel());
     }
 
 
     @RequestMapping("/solve")
-    public boolean solveEmail(@RequestParam int code, @RequestParam int userCode, @RequestParam int status) throws IOException, MessagingException {
+    public boolean solveEmail(@RequestParam int code, @RequestParam int userCode, @RequestParam int status, @RequestParam boolean checkSend, @RequestParam String solvedBody) throws IOException, MessagingException {
+        EmailSettings emailSettings = emailDBHandler.getSettings();
         EmailTickets emailTickets = emailDBHandler.findSelectedEmail(code);
         if (emailSystem.setHistory(code, userCode, status)) {
             emailTickets.setStatus(Status.SOLVED);
-            if (emailSystem.solveResponder(emailTickets, userCode)) {
+
+            if (emailSettings.getSolveCheck() == 0) {
                 emailDBHandler.insertEmail(emailTickets);
+            } else {
+                if (!checkSend) {
+                    if (emailSystem.solveResponder(emailTickets, userCode, solvedBody)) {
+                        emailDBHandler.insertEmail(emailTickets);
+                    }
+                } else {
+                    emailDBHandler.insertEmail(emailTickets);
+                }
+
             }
+
         }
         return true;
     }
 
+    @RequestMapping("/CountOfSolvedOrLockedEmails")
+    public int getCountOfSolvedOrLockedEmails(@RequestParam int status, @RequestParam int userCode) {
+        return emailDBHandler.getSolvedOrLockedEmails(status, userCode);
+    }
+
+    @RequestMapping("/CountOfUnLockedEmails")
+    public int getOfUnLockedEmails() {
+        return emailDBHandler.getOfUnLockedEmails();
+    }
+
+    @RequestMapping("/CountOfUnSolvedEmails")
+    public int getOfUnSolvedEmails() {
+        return emailDBHandler.getOfUnSolvedEmails();
+    }
+
+
     @RequestMapping("/lock")
     public boolean lockEmail(@RequestParam int code, @RequestParam int userCode, @RequestParam int status) throws IOException, MessagingException {
         EmailTickets emailTickets = emailDBHandler.findSelectedEmail(code);
-
         if (emailSystem.setHistory(code, userCode, status)) {
             emailTickets.setStatus(Status.LOCKED);
+            emailDBHandler.insertEmail(emailTickets);
+        }
+        return true;
+    }
+
+    @RequestMapping("/allocate")
+    public boolean allocateEmail(@RequestParam int code, @RequestParam int allocatorCode, @RequestParam int userCode, @RequestParam int status) throws IOException, MessagingException {
+        EmailTickets emailTickets = emailDBHandler.findSelectedEmail(code);
+        if (emailSystem.setHistory(code, userCode, status)) {
+            emailTickets.setStatus(Status.ALLOCATED);
+            emailTickets.setIsAllocatedBy(allocatorCode);
+            emailDBHandler.insertEmail(emailTickets);
+        }
+        return true;
+    }
+
+    @RequestMapping("/unAllocate")
+    public boolean unAllocateEmail(@RequestParam int code, @RequestParam int userCode, @RequestParam int status) throws IOException, MessagingException {
+        EmailTickets emailTickets = emailDBHandler.findSelectedEmail(code);
+        if (emailSystem.setHistory(code, userCode, status)) {
+            emailTickets.setStatus(Status.UNLOCKED);
+            emailTickets.setIsAllocatedBy(0);
+            emailDBHandler.insertEmail(emailTickets);
+        }
+        return true;
+    }
+
+    @RequestMapping("/resolve")
+    public boolean resolveEmail(@RequestParam int code, @RequestParam int userCode, @RequestParam int status) throws IOException, MessagingException {
+        EmailTickets emailTickets = emailDBHandler.findSelectedEmail(code);
+        if (emailSystem.setHistory(code, userCode, status)) {
+            emailTickets.setStatus(Status.RESOLVED);
             emailDBHandler.insertEmail(emailTickets);
         }
         return true;
@@ -220,7 +298,6 @@ public class EmailTicketController {
     @RequestMapping("/unlock")
     public boolean unlockEmail(@RequestParam int code, @RequestParam int userCode, @RequestParam int status) throws IOException, MessagingException {
         EmailTickets emailTickets = emailDBHandler.findSelectedEmail(code);
-
         if (emailSystem.setHistory(code, userCode, status)) {
             emailTickets.setStatus(Status.UNLOCKED);
             emailDBHandler.insertEmail(emailTickets);
@@ -229,35 +306,13 @@ public class EmailTicketController {
     }
 
 
-//    @RequestMapping("/forward/{code}")
-//    public boolean forwardEmail(@RequestBody Email email, @PathVariable int code) throws IOException, MessagingException {
-//        Email emailTicket = emailDBHandler.findSelectedEmail(code);
-//
-//        emailTicket.setToAddress(email.getToAddress());
-//        emailTicket.setCcAddress(email.getCcAddress());
-//        emailTicket.setSubject("FW: " + emailTicket.getSubject());
-//
-//        emailSystem.sendEmail(convertToEmailSent(emailTicket));
-//        return true;
-//    }
-//
-//    @RequestMapping("/reply/{code}")
-//    public boolean replyEmail(@RequestBody Email email, @PathVariable int code) throws IOException, MessagingException {
-//        Email emailTicket = emailDBHandler.findSelectedEmail(code);
-//
-//        emailTicket.setToAddress(emailTicket.getFromAddress());
-//        emailTicket.setCcAddress(emailTicket.getCcAddress());
-//        emailTicket.setSubject("RE: " + emailTicket.getSubject());
-//        emailTicket.setBody("\n\n\n" + "On " + email.getTimestamp() + ", " + email.getFromAddress() + " wrote:\n" + email.getBody());
-//
-//        emailSystem.sendEmail(convertToEmailSent(emailTicket));
-//        return true;
-//    }
-
     @RequestMapping("/archive/{code}")
     public boolean moveToArchive(@PathVariable int code) {
         EmailTickets emailTicket = emailDBHandler.findSelectedEmail(code);
-        emailTicket.setFreeze(1);
+        if (emailTicket != null) {
+            emailTicket.setFreeze(1);
+        }
+
         emailDBHandler.insertEmail(emailTicket);
         return true;
     }
@@ -275,17 +330,6 @@ public class EmailTicketController {
         return true;
     }
 
-    public EmailSent convertToEmailSent(Email emailTicket) {
-        EmailSent emailSent = new EmailSent();
-
-        emailSent.setToAddress(emailTicket.getToAddress());
-        emailSent.setCcAddress(emailTicket.getCcAddress());
-        emailSent.setSubject(emailTicket.getSubject());
-        emailSent.setBody(emailTicket.getBody());
-
-        return emailSent;
-    }
-
 
     @PutMapping("/{id}")
     ResponseEntity<?> updateEmails(@RequestBody EmailTickets emailTickets, @PathVariable int id) {
@@ -298,13 +342,9 @@ public class EmailTicketController {
                     email.setCcAddress(emailTickets.getCcAddress());
                     email.setBody(emailTickets.getBody());
                     email.setAttachment(emailTickets.getAttachment());
-//                    email.setSolved(emailTickets.getSolved());
-//                    email.setSolvedBy(emailTickets.getSolvedBy());
-//                    email.setSolveTime(emailTickets.getSolveTime());
-//                    email.setLocked(emailTickets.getLocked());
+
                     email.setTimestamp(emailTickets.getTimestamp());
                     email.setManualEmail(emailTickets.getManualEmail());
-//                    email.setLockTime(emailTickets.getLockTime());
                     email.setFreeze(emailTickets.getFreeze());
                     return emailTicketsRepository.save(email);
                 })//

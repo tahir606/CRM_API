@@ -13,4 +13,8 @@ public class EmailListModelAssembler implements RepresentationModelAssembler<Ema
                 WebMvcLinkBuilder.linkTo(methodOn(EmailListController.class).one(entity.getEmailID())).withSelfRel(),
                 linkTo(methodOn(EmailListController.class).all()).withRel("email_list"));
     }
+    public EntityModel<String> toModelString(String entity) {
+        return EntityModel.of(entity, //
+                WebMvcLinkBuilder.linkTo(methodOn(EmailListController.class).all()).withRel("email_list"));
+    }
 }
