@@ -2,10 +2,10 @@ package com.example.CRM.Email.EmailList;
 
 import com.example.CRM.Client.Client;
 import com.example.CRM.Contact.Contact;
+import com.example.CRM.LeadStore.Lead;
 import com.example.CRM.User.Users;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
@@ -25,8 +25,7 @@ public class EmailList implements Serializable {
     private String name;
     @Column(name = "Email_Address", unique = true)
     private String address;
-    @Column(name = "LS_ID")
-    private int leadsID;
+
 
     @Column(name = "User_Code")
     private Integer userCode;
@@ -34,6 +33,12 @@ public class EmailList implements Serializable {
     @JoinColumn(name = "User_Code", insertable = false, updatable = false)
     private Users users;
 
+    @Column(name = "LS_ID")
+    private Integer leadsID;
+    @JsonBackReference(value = "ldEmailLists")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "LS_ID", insertable = false, updatable = false)
+    private Lead leadsEmailList;
 
     @Column(name = "CL_ID")
     private Integer clientID;
@@ -53,6 +58,38 @@ public class EmailList implements Serializable {
     public EmailList() {
     }
 
+    public Integer getUserCode() {
+        return userCode;
+    }
+
+    public void setUserCode(Integer userCode) {
+        this.userCode = userCode;
+    }
+
+    public Integer getLeadsID() {
+        return leadsID;
+    }
+
+    public void setLeadsID(Integer leadsID) {
+        this.leadsID = leadsID;
+    }
+
+    public Integer getClientID() {
+        return clientID;
+    }
+
+    public void setClientID(Integer clientID) {
+        this.clientID = clientID;
+    }
+
+    public Integer getContactID() {
+        return contactID;
+    }
+
+    public void setContactID(Integer contactID) {
+        this.contactID = contactID;
+    }
+
     public Users getUsers() {
         return users;
     }
@@ -64,6 +101,16 @@ public class EmailList implements Serializable {
     public EmailList(String address, String name) {
         this.address = address;
         this.name = name;
+    }
+
+
+
+    public Lead getLeadsEmailList() {
+        return leadsEmailList;
+    }
+
+    public void setLeadsEmailList(Lead leadsEmailList) {
+        this.leadsEmailList = leadsEmailList;
     }
 
     public Contact getContactEmailList() {
@@ -98,37 +145,7 @@ public class EmailList implements Serializable {
         this.name = name;
     }
 
-    public Integer getClientID() {
-        return clientID;
-    }
 
-    public void setClientID(Integer clientID) {
-        this.clientID = clientID;
-    }
-
-    public Integer getUserCode() {
-        return userCode;
-    }
-
-    public void setUserCode(Integer userCode) {
-        this.userCode = userCode;
-    }
-
-    public Integer getContactID() {
-        return contactID;
-    }
-
-    public void setContactID(Integer contactID) {
-        this.contactID = contactID;
-    }
-
-    public int getLeadsID() {
-        return leadsID;
-    }
-
-    public void setLeadsID(int leadsID) {
-        this.leadsID = leadsID;
-    }
 
     public String getAddress() {
         return address;
@@ -144,13 +161,14 @@ public class EmailList implements Serializable {
                 "emailID=" + emailID +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
-                ", clientID=" + clientID +
-//                ", client=" + client +
                 ", userCode=" + userCode +
-//                ", users=" + users +
-//                ", contactID=" + contactID +
-//                ", contact=" + contact +
+                ", users=" + users +
                 ", leadsID=" + leadsID +
+                ", leadsEmailList=" + leadsEmailList +
+                ", clientID=" + clientID +
+                ", clientEmailList=" + clientEmailList +
+                ", contactID=" + contactID +
+                ", contactEmailList=" + contactEmailList +
                 '}';
     }
 }

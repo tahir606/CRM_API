@@ -96,19 +96,21 @@ public class EmailTicketController {
     }
 
     @RequestMapping("/ticketsSolvedByUserDetails/{userCode}")
-    public List<EmailTickets> ticketsSolvedByUserDetails(@PathVariable int userCode, @RequestParam String filter) {
-        String filterTicket = clientSystem.filterTime(filter);
+    public List<EmailTickets> ticketsSolvedByUserDetails(@PathVariable int userCode, @RequestParam String from, @RequestParam String to) {
+        String filterTicket = clientSystem.filterTime(from, to);
         List<EmailTickets> email = emailDBHandler.getTicketsSolvedByUserDetails(userCode, filterTicket);
         return email;
     }
-    @RequestMapping("/clientReportWithDomain/{clientId}")
-    public List<EmailTickets> clientReportWithDomain(@PathVariable int clientId, @RequestParam String filter) {
 
-        String filterTicket = clientSystem.filterTime(filter);
+    @RequestMapping("/clientReportWithDomain/{clientId}")
+    public List<EmailTickets> clientReportWithDomain(@PathVariable int clientId, @RequestParam String from, @RequestParam String to) {
+
+        String filterTicket = clientSystem.filterTime(from, to);
         List<EmailTickets> email = emailDBHandler.clientReportWithDomain(clientId, filterTicket);
 
         return email;
     }
+
     @RequestMapping("/create/{userCode}")
     public boolean sendEmail(@RequestPart("email") Email email, @RequestParam("files") MultipartFile[] files, @PathVariable int userCode) throws AddressException, MessagingException, IOException {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -180,7 +182,7 @@ public class EmailTicketController {
 
     @RequestMapping("/check/{ticketNo}")
     public boolean checkUpdate(@PathVariable int ticketNo) {
-        if (emailDBHandler.getMaxTicketNo().getTicketNo() > ticketNo) {
+        if (emailDBHandler.getMaxTicketNo() > ticketNo) {
             return true;
         } else {
             return false;
@@ -188,10 +190,8 @@ public class EmailTicketController {
     }
 
     @RequestMapping("/getMaxTicketNo")
-    public EntityModel<EmailTickets> getMaxTicketNo() {
-        EmailTickets emailTickets = emailDBHandler.getMaxTicketNo();
-
-        return emailModelAssembler.toModel(emailTickets);
+    public int getMaxTicketNo() {
+        return emailDBHandler.getMaxTicketNo();
     }
 
     @RequestMapping("/updatedStatus/{ticketNo}")

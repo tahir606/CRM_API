@@ -1,10 +1,14 @@
 package com.example.CRM.Source;
 
+import com.example.CRM.LeadStore.Lead;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "source_list")
-public class Source {
+public class Source implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "source_ID")
@@ -13,6 +17,7 @@ public class Source {
     private String name;
     @Column(name = "source_Description")
     private String description;
+
 
     public Source(){
 

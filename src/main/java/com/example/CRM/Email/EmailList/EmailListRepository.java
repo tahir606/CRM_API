@@ -12,5 +12,5 @@ import org.springframework.data.jpa.repository.Query;
 import javax.transaction.Transactional;
 
 public interface EmailListRepository extends JpaRepository<EmailList,Integer> {
-
+    List<EmailList> findAllByClientID(int id);
 }

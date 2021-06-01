@@ -22,6 +22,7 @@ import javax.mail.internet.*;
 import javax.mail.search.FlagTerm;
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import sun.net.ConnectionResetException;
 
 @Service
 public class EmailSystem {

@@ -68,4 +68,8 @@ public class EmailTicketCustomQueryRepository {
         Query query = entityManager.createQuery("SELECT COUNT(DISTINCT e.code) FROM email_ticket e WHERE  e.status != " + 3 + " AND e.status = " + 2 + " AND e.freeze =" + 0);
         return ((Number) query.getSingleResult()).intValue();
     }
+    public int getMaxTicketNo() {
+        Query query = entityManager.createQuery("SELECT MAX (e.ticketNo) FROM email_ticket e WHERE  e.freeze =" + 0);
+        return ((Number) query.getSingleResult()).intValue();
+    }
 }

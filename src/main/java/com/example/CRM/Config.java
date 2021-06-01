@@ -73,7 +73,7 @@ public class Config {
 //            log.debug("Solve Responder:"+ emailTicketController.solveEmail(530,22,0));
 //            log.debug("read All Email General :"+emailDBHandler.readAllEmailsGeneral());
 //            log.debug("sorry:"+emailTicketController.all());
-//            log.debug("test:"+noteController.deleteUser(340,637));
+//            log.debug("test:"+noteController.getNotes());
 //            log.debug("test:"+emailDBHandler.maxTicketNo());
 //            log.debug("test:"+historyController.getHistory(1027));
 //            log.debug("test:" + clientController.all());

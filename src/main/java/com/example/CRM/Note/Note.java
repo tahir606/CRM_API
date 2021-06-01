@@ -3,17 +3,18 @@ package com.example.CRM.Note;
 import com.example.CRM.Client.Client;
 import com.example.CRM.Contact.Contact;
 import com.example.CRM.Email.EmailTicket.EmailTickets;
+import com.example.CRM.LeadStore.Lead;
+import com.example.CRM.Product.Store.Product;
 import com.example.CRM.User.Users;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-@Entity
+@Entity(name = "note_store")
 @Table(name = "note_store")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
 //        property  = "noteCode",
@@ -25,20 +26,30 @@ public class Note implements Serializable {
     private int noteCode;
     @Column(name = "Note_Text")
     private String text;
-
-    @Column(name = "Product_ID")
-    private int psID;
-    @Column(name = "Leads_ID")
-    private int leadsId;
     @Column(name = "Created_On")
     private Timestamp createdOn;
     @Column(name = "freeze")
     private int freeze;
+
     @Column(name = "Created_By")
-    private Integer createdBy;
+    private int createdBy;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "Created_By", insertable = false, updatable = false)
     private Users users;
+
+    @Column(name = "Product_ID")
+    private Integer psID;
+    @JsonBackReference(value = "pdNoteList")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "Product_ID", insertable = false, updatable = false)
+    private Product productNoteList;
+
+    @Column(name = "Leads_ID")
+    private Integer leadsId;
+    @JsonBackReference(value = "ldNoteList")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "Leads_ID", insertable = false, updatable = false)
+    private Lead leadsNoteList;
 
     @Column(name = "EmailId")
     private Integer emailId;
@@ -50,14 +61,14 @@ public class Note implements Serializable {
     @Column(name = "CS_ID")
     private Integer contactID;
     @JsonBackReference(value = "coNoteList")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "CS_ID", insertable = false, updatable = false)
     private Contact contactNoteList;
 
     @Column(name = "CL_ID")
     private Integer clientID;
     @JsonBackReference(value = "clNoteList")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "CL_ID", insertable = false, updatable = false)
     private Client clientNoteList;
 
@@ -65,19 +76,60 @@ public class Note implements Serializable {
 
     }
 
-    public Note(int noteCode, String text, int contactID, int clientID, int psID, int leadsId, int createdBy, Users users, Timestamp createdOn, int freeze, int emailId, EmailTickets emailTickets) {
-        this.noteCode = noteCode;
-        this.text = text;
-        this.contactID = contactID;
-        this.clientID = clientID;
+    public Integer getPsID() {
+        return psID;
+    }
+
+    public void setPsID(Integer psID) {
         this.psID = psID;
+    }
+
+    public Integer getLeadsId() {
+        return leadsId;
+    }
+
+    public void setLeadsId(Integer leadsId) {
         this.leadsId = leadsId;
-        this.createdOn = createdOn;
-        this.freeze = freeze;
-        this.createdBy = createdBy;
-        this.users = users;
+    }
+
+    public Integer getEmailId() {
+        return emailId;
+    }
+
+    public void setEmailId(Integer emailId) {
         this.emailId = emailId;
-        this.emailTickets = emailTickets;
+    }
+
+    public Integer getContactID() {
+        return contactID;
+    }
+
+    public void setContactID(Integer contactID) {
+        this.contactID = contactID;
+    }
+
+    public Integer getClientID() {
+        return clientID;
+    }
+
+    public void setClientID(Integer clientID) {
+        this.clientID = clientID;
+    }
+
+    public Product getProductNoteList() {
+        return productNoteList;
+    }
+
+    public void setProductNoteList(Product productNoteList) {
+        this.productNoteList = productNoteList;
+    }
+
+    public Lead getLeadsNoteList() {
+        return leadsNoteList;
+    }
+
+    public void setLeadsNoteList(Lead leadsNoteList) {
+        this.leadsNoteList = leadsNoteList;
     }
 
     public Contact getContactNoteList() {
@@ -112,46 +164,6 @@ public class Note implements Serializable {
         this.text = text;
     }
 
-    public Integer getContactID() {
-        return contactID;
-    }
-
-    public void setContactID(Integer contactID) {
-        this.contactID = contactID;
-    }
-
-    public Integer getClientID() {
-        return clientID;
-    }
-
-    public void setClientID(Integer clientID) {
-        this.clientID = clientID;
-    }
-
-    public int getPsID() {
-        return psID;
-    }
-
-    public void setPsID(int psID) {
-        this.psID = psID;
-    }
-
-    public int getLeadsId() {
-        return leadsId;
-    }
-
-    public void setLeadsId(int leadsId) {
-        this.leadsId = leadsId;
-    }
-
-    public Integer getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Integer createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public Timestamp getCreatedOn() {
         return createdOn;
     }
@@ -166,14 +178,6 @@ public class Note implements Serializable {
 
     public void setFreeze(int freeze) {
         this.freeze = freeze;
-    }
-
-    public Integer getEmailId() {
-        return emailId;
-    }
-
-    public void setEmailId(Integer emailID) {
-        this.emailId = emailID;
     }
 
     public Users getUsers() {
@@ -192,19 +196,34 @@ public class Note implements Serializable {
         this.emailTickets = emailTickets;
     }
 
+    public int getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(int createdBy) {
+        this.createdBy = createdBy;
+    }
+
+
     @Override
     public String toString() {
         return "Note{" +
                 "noteCode=" + noteCode +
-                ", noteText='" + text + '\'' +
-                ", contactID=" + contactID +
-                ", clientID=" + clientID +
-                ", psID=" + psID +
-                ", leadsId=" + leadsId +
-                ", createdBy=" + createdBy +
+                ", text='" + text + '\'' +
                 ", createdOn=" + createdOn +
-                ", emailID=" + emailId +
                 ", freeze=" + freeze +
+                ", createdBy=" + createdBy +
+                ", users=" + users +
+                ", psID=" + psID +
+                ", productNoteList=" + productNoteList +
+                ", leadsId=" + leadsId +
+                ", leadsNoteList=" + leadsNoteList +
+                ", emailId=" + emailId +
+                ", emailTickets=" + emailTickets +
+                ", contactID=" + contactID +
+                ", contactNoteList=" + contactNoteList +
+                ", clientID=" + clientID +
+                ", clientNoteList=" + clientNoteList +
                 '}';
     }
 }

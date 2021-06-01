@@ -1,11 +1,23 @@
 package com.example.CRM.Product.Store;
 
+import com.example.CRM.Event.Event;
+import com.example.CRM.Module.ModuleLocking;
+import com.example.CRM.Note.Note;
+import com.example.CRM.Product.ProductModule;
+import com.example.CRM.Task.Task;
+import com.example.CRM.User.Users;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import sun.security.pkcs11.Secmod;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "product_store")
-public class Product {
+public class Product implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "PS_ID")
@@ -21,28 +33,77 @@ public class Product {
     @Column(name = "PS_Type")
     private int type;
     @Column(name = "PS_Started")
-    private Date started;
+    private Timestamp started;
     @Column(name = "PS_Property")
     private int property;
+    @Column(name = "CreatedOn")
+    private Timestamp createdOn;
+
     @Column(name = "CreatedBy")
     private int createdBy;
-    @Column(name = "CreatedOn")
-    private Date createdOn;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "CreatedBy", insertable = false, updatable = false)
+    private Users users;
+
+
+    @JsonManagedReference(value = "pdNoteList")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "productNoteList")
+    private List<Note> pdNoteList;
+
+    @JsonManagedReference(value = "pdProductModule")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "productModuleList")
+    private List<ProductModule> pdProductModule;
+
+    @JsonManagedReference(value = "pdTaskList")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "productTaskList")
+    private List<Task> pdTaskList;
+
+    @JsonManagedReference(value = "pdEventList")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "productEventList")
+    private List<Event> pdEventList;
+
     public Product(){
 
     }
-    public Product(int psID, String name, int price, String description, int status, int type, Date started, int property,
-                   int createdBy, Date createdOn) {
-        this.psID = psID;
-        this.name = name;
-        this.price = price;
-        this.description = description;
-        this.status = status;
-        this.type = type;
-        this.started = started;
-        this.property = property;
-        this.createdBy = createdBy;
-        this.createdOn = createdOn;
+
+//    public List<ModuleLocking> getPdModuleLockingList() {
+//        return pdModuleLockingList;
+//    }
+//
+//    public void setPdModuleLockingList(List<ModuleLocking> pdModuleLockingList) {
+//        this.pdModuleLockingList = pdModuleLockingList;
+//    }
+
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
+    }
+
+    public List<Note> getPdNoteList() {
+        return pdNoteList;
+    }
+
+    public void setPdNoteList(List<Note> pdNoteList) {
+        this.pdNoteList = pdNoteList;
+    }
+
+    public List<Task> getPdTaskList() {
+        return pdTaskList;
+    }
+
+    public void setPdTaskList(List<Task> pdTaskList) {
+        this.pdTaskList = pdTaskList;
+    }
+
+    public List<Event> getPdEventList() {
+        return pdEventList;
+    }
+
+    public void setPdEventList(List<Event> pdEventList) {
+        this.pdEventList = pdEventList;
     }
 
     public int getPsID() {
@@ -93,13 +154,7 @@ public class Product {
         this.type = type;
     }
 
-    public Date getStarted() {
-        return started;
-    }
 
-    public void setStarted(Date started) {
-        this.started = started;
-    }
 
     public int getProperty() {
         return property;
@@ -117,27 +172,47 @@ public class Product {
         this.createdBy = createdBy;
     }
 
-    public Date getCreatedOn() {
+    public Timestamp getStarted() {
+        return started;
+    }
+
+    public void setStarted(Timestamp started) {
+        this.started = started;
+    }
+
+    public Timestamp getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
+    public void setCreatedOn(Timestamp createdOn) {
         this.createdOn = createdOn;
+    }
+
+    public List<ProductModule> getPdProductModule() {
+        return pdProductModule;
+    }
+
+    public void setPdProductModule(List<ProductModule> pdProductModule) {
+        this.pdProductModule = pdProductModule;
     }
 
     @Override
     public String toString() {
         return "Product{" +
-                "ps_ID=" + psID +
-                ", ps_Name='" + name + '\'' +
-                ", ps_Price=" + price +
-                ", ps_Description='" + description + '\'' +
-                ", ps_Status=" + status +
-                ", ps_Type=" + type +
-                ", ps_Started=" + started +
-                ", ps_Property=" + property +
-                ", createdBy=" + createdBy +
+                "psID=" + psID +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", type=" + type +
+                ", started=" + started +
+                ", property=" + property +
                 ", createdOn=" + createdOn +
+                ", createdBy=" + createdBy +
+                ", users=" + users +
+                ", pdNoteList=" + pdNoteList +
+                ", pdTaskList=" + pdTaskList +
+                ", pdEventList=" + pdEventList +
                 '}';
     }
 }

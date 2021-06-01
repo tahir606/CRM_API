@@ -117,8 +117,8 @@ public class UserController {
     }
 
     @RequestMapping("/getSolvedEmailsByUsers")
-    public CollectionModel<EntityModel<Users>> getSolvedEmails(@RequestParam String filter) {
-        String filterTicket = userSystem.filterTime(filter);
+    public CollectionModel<EntityModel<Users>> getSolvedEmails(@RequestParam String from,@RequestParam String to) {
+        String filterTicket = userSystem.filterTime(from,to);
         List<EntityModel<Users>> users = emailDBHandler.getCountEmailStatus(filterTicket).stream() //
                 .map(assembler::toModel) //
                 .collect(Collectors.toList());

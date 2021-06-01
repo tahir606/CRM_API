@@ -1,9 +1,11 @@
 package com.example.CRM.Phone;
 
+import com.example.CRM.Email.EmailList.EmailList;
 import com.example.CRM.JCode.EmailDBHandler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,6 +64,16 @@ public class PhoneController {
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
                 .body(entityModel);
 
+    }
+    @RequestMapping("/updatePhoneList")
+    ResponseEntity<?> updatePhoneList(@RequestBody PhoneList phoneList) {
+
+        int isUpdate= emailDBHandler.updatePhoneList(phoneList);
+        if (isUpdate==0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(phoneList.getPhoneID(),HttpStatus.OK);
     }
     @RequestMapping("/deletePhoneList/{code}")
     ResponseEntity<?> delete(@PathVariable int code) {

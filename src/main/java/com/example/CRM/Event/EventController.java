@@ -1,5 +1,6 @@
 package com.example.CRM.Event;
 
+import com.example.CRM.JCode.EmailDBHandler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -19,11 +20,12 @@ public class EventController {
 
     private final EventRepository eventRepository;
     private final EventModelAssembler eventModelAssembler;
+    private final EmailDBHandler emailDBHandler;
 
-
-    public EventController(EventRepository eventRepository, EventModelAssembler eventModelAssembler) {
+    public EventController(EventRepository eventRepository, EventModelAssembler eventModelAssembler, EmailDBHandler emailDBHandler) {
         this.eventRepository = eventRepository;
         this.eventModelAssembler = eventModelAssembler;
+        this.emailDBHandler = emailDBHandler;
     }
 
     @GetMapping("/{id}")
@@ -32,7 +34,22 @@ public class EventController {
                 .orElseThrow(() -> new EventNotFoundException(id));
         return eventModelAssembler.toModel(event);
     }
+    @RequestMapping("/getEventsByClientId/{clientId}")
+    public CollectionModel<EntityModel<Event>> getEventsByClientId(@PathVariable int clientId) {
 
+        List<EntityModel<Event>> note = emailDBHandler.findEventByClientId(clientId).stream() //
+                .map(eventModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(note, linkTo(methodOn(EventController.class).all()).withSelfRel());
+    }
+    @RequestMapping("/getEventsByLeadId/{leadId}")
+    public CollectionModel<EntityModel<Event>> getEventsByLeadId(@PathVariable int leadId) {
+
+        List<EntityModel<Event>> note = emailDBHandler.findEventByLeadId(leadId).stream() //
+                .map(eventModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(note, linkTo(methodOn(EventController.class).all()).withSelfRel());
+    }
     @GetMapping()
     CollectionModel<EntityModel<Event>> all() {
         List<EntityModel<Event>> events = eventRepository.findAll().stream() //
@@ -93,5 +110,12 @@ public class EventController {
         return ResponseEntity //
                 .created(eventEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())//
                 .body(eventEntityModel);
+    }
+
+    @RequestMapping("/deleteEvent/{eventId}")
+    public boolean deleteEvent(@PathVariable int eventId) {
+          emailDBHandler.deleteEvent(eventId);
+
+        return true;
     }
 }

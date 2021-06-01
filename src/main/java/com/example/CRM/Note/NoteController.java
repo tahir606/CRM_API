@@ -1,9 +1,11 @@
 package com.example.CRM.Note;
 
 import com.example.CRM.JCode.EmailDBHandler;
+import com.example.CRM.Phone.PhoneList;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,9 +54,49 @@ public class NoteController {
         List<EntityModel<Note>> note = noteRepository.findAll().stream() //
                 .map(noteModelAssembler::toModel) //
                 .collect(Collectors.toList());
+
         return CollectionModel.of(note, linkTo(methodOn(NoteController.class).all()).withSelfRel());
     }
+    @RequestMapping("/getNotesByEmailId/{emailId}")
+    public CollectionModel<EntityModel<Note>> getNotesByEmailId(@PathVariable int emailId) {
 
+        List<EntityModel<Note>> note = emailDBHandler.findNoteByEmailId(emailId).stream() //
+                .map(noteModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(note, linkTo(methodOn(NoteController.class).all()).withSelfRel());
+    }
+    @RequestMapping("/getNotesByClientId/{clientId}")
+    public CollectionModel<EntityModel<Note>> getNotesByClientId(@PathVariable int clientId) {
+
+        List<EntityModel<Note>> note = emailDBHandler.findNoteByClientId(clientId).stream() //
+                .map(noteModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(note, linkTo(methodOn(NoteController.class).all()).withSelfRel());
+    }
+    @RequestMapping("/getNotesByLeadId/{leadsId}")
+    public CollectionModel<EntityModel<Note>> getNotesByLeadId(@PathVariable int leadsId) {
+
+        List<EntityModel<Note>> note = emailDBHandler.findNoteByLeadId(leadsId).stream() //
+                .map(noteModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(note, linkTo(methodOn(NoteController.class).all()).withSelfRel());
+    }
+    @RequestMapping("/getNotesByProductId/{productId}")
+    public CollectionModel<EntityModel<Note>> getNotesByProductId(@PathVariable int productId) {
+
+        List<EntityModel<Note>> note = emailDBHandler.findNoteByProductId(productId).stream() //
+                .map(noteModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(note, linkTo(methodOn(NoteController.class).all()).withSelfRel());
+    }
+    @RequestMapping("/getNotesByContactId/{contactId}")
+    public CollectionModel<EntityModel<Note>> getNotesByContactId(@PathVariable int contactId) {
+
+        List<EntityModel<Note>> note = emailDBHandler.findNoteByContactId(contactId).stream() //
+                .map(noteModelAssembler::toModel) //
+                .collect(Collectors.toList());
+        return CollectionModel.of(note, linkTo(methodOn(NoteController.class).all()).withSelfRel());
+    }
     @PostMapping
     ResponseEntity<?> addNotes(@RequestBody Note note) {
 
@@ -85,7 +127,16 @@ public class NoteController {
         emailDBHandler.insertNotes(notesUpdate);
         return true;
     }
+    @RequestMapping("/updateNoteLeadList")
+    ResponseEntity<?> updateNoteLeadList(@RequestBody Note note) {
 
+        int isUpdate= emailDBHandler.updateNoteLeadList(note);
+        if (isUpdate==0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(note.getNoteCode(),HttpStatus.OK);
+    }
     @PutMapping("/{id}")
     ResponseEntity<?> updateNotes(@RequestBody Note note, @PathVariable int id) {
         Note notesUpdate = noteRepository.findById(id)//
@@ -114,8 +165,7 @@ public class NoteController {
     public boolean deleteNote(@PathVariable int noteId) {
         Note deleteNote = emailDBHandler.findNote(noteId);
 
-        deleteNote.setFreeze(1);
-        emailDBHandler.insertNotes(deleteNote);
+        emailDBHandler.deleteNote(deleteNote);
 
         return true;
     }

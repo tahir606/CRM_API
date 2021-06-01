@@ -13,7 +13,7 @@ public class SourceModelAssembler implements RepresentationModelAssembler<Source
     @Override
     public EntityModel<Source> toModel(Source entity) {
         return EntityModel.of(entity, //
-                WebMvcLinkBuilder.linkTo(methodOn(SourceController.class).one( entity.getSourceID())).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(methodOn(SourceController.class).one(entity.getSourceID())).withSelfRel(),
                 linkTo(methodOn(SourceController.class).all()).withRel("source_list"));
     }
 }

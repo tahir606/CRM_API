@@ -80,6 +80,11 @@ public class EmailGeneralController {
         return true;
     }
 
+    @RequestMapping("/getMaxGeneralNo")
+    public int getMaxGeneralNo() {
+        return emailDBHandler.getMaxGeneralNo();
+    }
+
     @RequestMapping("/archive/{code}")
     public boolean moveToArchive(@PathVariable int code) {
         EmailGeneral emailGeneral = emailDBHandler.findSelectedGeneralEmail(code);

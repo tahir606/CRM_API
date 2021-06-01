@@ -22,7 +22,8 @@ public class ClientController {
     private final ClientModelAssembler client_ModelAssembler;
     private final EmailDBHandler emailDBHandler;
     private final ClientSystem clientSystem;
-    public ClientController(ClientRepository client_Repository, ClientModelAssembler client_ModelAssembler, EmailDBHandler emailDBHandler,ClientSystem clientSystem) {
+
+    public ClientController(ClientRepository client_Repository, ClientModelAssembler client_ModelAssembler, EmailDBHandler emailDBHandler, ClientSystem clientSystem) {
         this.client_Repository = client_Repository;
         this.client_ModelAssembler = client_ModelAssembler;
         this.emailDBHandler = emailDBHandler;
@@ -47,6 +48,14 @@ public class ClientController {
         return CollectionModel.of(client_store, linkTo(methodOn(ClientController.class).all()).withSelfRel());
     }
 
+    @RequestMapping("/{id}")
+    EntityModel<Client> getClient(@PathVariable int id) {
+        Client client_ = client_Repository.findById(id)//
+                .orElseThrow(() -> new ClientNotFoundException(id));
+
+        return client_ModelAssembler.toModel(client_);
+    }
+
     @RequestMapping("/clientList")
     public CollectionModel<EntityModel<Client>> getClientList() {
 
@@ -55,20 +64,23 @@ public class ClientController {
                 .collect(Collectors.toList());
         return CollectionModel.of(client_store, linkTo(methodOn(ClientController.class).all()).withSelfRel());
     }
+
     @RequestMapping("/emailsPerClient")
-    public CollectionModel<EntityModel<Client>> emailsPerClient(@RequestParam String filter) {
-        String filterTicket = clientSystem.filterTime(filter);
+    public CollectionModel<EntityModel<Client>> emailsPerClient(@RequestParam String from,@RequestParam String to) {
+        String filterTicket = clientSystem.filterTime(from,to);
         List<EntityModel<Client>> client_store = emailDBHandler.emailsPerClient(filterTicket).stream() //
                 .map(client_ModelAssembler::toModel) //
                 .collect(Collectors.toList());
         return CollectionModel.of(client_store, linkTo(methodOn(ClientController.class).all()).withSelfRel());
     }
+
     @RequestMapping("/addClient")
     ResponseEntity<?> addClient(@RequestBody Client client) {
-        EntityModel<Client> client_storeEntityModel = client_ModelAssembler.toModel(client_Repository.save(client));
+
+        EntityModel<Client> entityModel = client_ModelAssembler.toModel(client_Repository.save(client));
         return ResponseEntity //
-                .created(client_storeEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
-                .body(client_storeEntityModel);
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+                .body(entityModel);
     }
 
     @PostMapping

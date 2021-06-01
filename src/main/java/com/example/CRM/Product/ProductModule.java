@@ -1,36 +1,56 @@
 package com.example.CRM.Product;
 
-import javax.persistence.*;
-import java.sql.Date;
+import com.example.CRM.Contact.Contact;
+import com.example.CRM.Module.ModuleLocking;
+import com.example.CRM.Product.Store.Product;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-@Entity
-@Table(name = "product_module")
-public class ProductModule {
+import javax.persistence.*;
+import java.io.Serializable;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.List;
+
+@Entity(name = "product_module")
+@Table
+public class ProductModule implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "PM_ID")
     private int pmID;
-    @Column(name = "PS_ID")
-    private int psID;
     @Column(name = "PM_Name")
     private String name;
     @Column(name = "PM_Description")
     private String description;
+
     @Column(name = "CreatedBy")
     private int createdBy;
+
     @Column(name = "CreatedOn")
-    private Date createdOn;
+    private Timestamp createdOn;
+
+    @Column(name = "PS_ID")
+    private Integer psID;
+    @JsonBackReference(value = "pdProductModule")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "PS_ID", insertable = false, updatable = false)
+    private Product productModuleList;
+
+    @JsonManagedReference(value = "pmModuleLockingList")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "productMModuleLockingList")
+    private List<ModuleLocking> pmModuleLockingList;
 
     public ProductModule(){
 
     }
-    public ProductModule(int pmID, int psID, String name, String description, int createdBy, Date createdOn) {
-        this.pmID = pmID;
-        this.psID = psID;
-        this.name = name;
-        this.description = description;
-        this.createdBy = createdBy;
-        this.createdOn = createdOn;
+
+    public List<ModuleLocking> getPmModuleLockingList() {
+        return pmModuleLockingList;
+    }
+
+    public void setPmModuleLockingList(List<ModuleLocking> pmModuleLockingList) {
+        this.pmModuleLockingList = pmModuleLockingList;
     }
 
     public int getPmID() {
@@ -39,14 +59,6 @@ public class ProductModule {
 
     public void setPmID(int pmID) {
         this.pmID = pmID;
-    }
-
-    public int getPsID() {
-        return psID;
-    }
-
-    public void setPsID(int psID) {
-        this.psID = psID;
     }
 
     public String getName() {
@@ -73,12 +85,28 @@ public class ProductModule {
         this.createdBy = createdBy;
     }
 
-    public Date getCreatedOn() {
+    public Timestamp getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
+    public void setCreatedOn(Timestamp createdOn) {
         this.createdOn = createdOn;
+    }
+
+    public Integer getPsID() {
+        return psID;
+    }
+
+    public void setPsID(Integer psID) {
+        this.psID = psID;
+    }
+
+    public Product getProductModuleList() {
+        return productModuleList;
+    }
+
+    public void setProductModuleList(Product productModuleList) {
+        this.productModuleList = productModuleList;
     }
 
     @Override

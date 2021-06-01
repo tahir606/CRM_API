@@ -14,7 +14,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/product_store")
+@RequestMapping("/product")
 public class ProductController {
     private final ProductRepository productRepository;
     private final ProductModelAssembler productModelAssembler;
@@ -33,6 +33,7 @@ public class ProductController {
 
         return productModelAssembler.toModel(product);
     }
+
     @GetMapping
     CollectionModel<EntityModel<Product>> all() {
 
@@ -43,6 +44,36 @@ public class ProductController {
         return CollectionModel.of(entityModels, linkTo(methodOn(ProductController.class).all()).withSelfRel());
     }
 
+    @RequestMapping("/getAllProducts")
+    CollectionModel<EntityModel<Product>> getAllProducts() {
+
+        List<EntityModel<Product>> entityModels = productRepository.findAll().stream() //
+                .map(productModelAssembler::toModel) //
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(entityModels, linkTo(methodOn(ProductController.class).all()).withSelfRel());
+    }
+
+    @RequestMapping("/{id}")
+    EntityModel<Product> getProduct(@PathVariable int id) {
+
+        Product product = productRepository.findById(id)//
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        return productModelAssembler.toModel(product);
+    }
+
+    @RequestMapping("/addProduct")
+    ResponseEntity<?> addProduct(@RequestBody Product product) {
+
+        EntityModel<Product> entityModel = productModelAssembler.toModel(productRepository.save(product));
+
+        return ResponseEntity //
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
+                .body(entityModel);
+    }
+
+
     @PostMapping
     ResponseEntity<?> addProductInStore(@RequestBody Product product) {
 
@@ -52,28 +83,29 @@ public class ProductController {
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
                 .body(entityModel);
     }
+
     @PutMapping("/{id}")
-    ResponseEntity<?> updateProduct(@RequestBody Product product , @PathVariable int id){
+    ResponseEntity<?> updateProduct(@RequestBody Product product, @PathVariable int id) {
         Product productUpdate = productRepository.findById(id)//
-            .map(products -> {
-                products.setCreatedBy(product.getCreatedBy());
-                products.setCreatedOn(product.getCreatedOn());
-                products.setDescription(product.getDescription());
-                products.setName(product.getName());
-                products.setPrice(product.getPrice());
-                products.setProperty(product.getProperty());
-                products.setStarted(product.getStarted());
-                products.setType(product.getType());
-                products.setStatus(product.getStatus());
-                return productRepository.save(products);
-            })//
-            .orElseGet(()->{
-                product.setPsID(id);
-                return productRepository.save(product);
-        });
+                .map(products -> {
+                    products.setCreatedBy(product.getCreatedBy());
+                    products.setCreatedOn(product.getCreatedOn());
+                    products.setDescription(product.getDescription());
+                    products.setName(product.getName());
+                    products.setPrice(product.getPrice());
+                    products.setProperty(product.getProperty());
+                    products.setStarted(product.getStarted());
+                    products.setType(product.getType());
+                    products.setStatus(product.getStatus());
+                    return productRepository.save(products);
+                })//
+                .orElseGet(() -> {
+                    product.setPsID(id);
+                    return productRepository.save(product);
+                });
         EntityModel<Product> productEntityModel = productModelAssembler.toModel(productUpdate);
         return ResponseEntity //
-            .created(productEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())//
-            .body(productEntityModel);
+                .created(productEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())//
+                .body(productEntityModel);
     }
 }

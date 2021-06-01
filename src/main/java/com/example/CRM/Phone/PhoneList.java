@@ -2,10 +2,10 @@ package com.example.CRM.Phone;
 
 import com.example.CRM.Client.Client;
 import com.example.CRM.Contact.Contact;
+import com.example.CRM.LeadStore.Lead;
 import com.example.CRM.User.Users;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
@@ -32,7 +32,12 @@ public class PhoneList implements Serializable {
     private Users users;
 
     @Column(name = "Leads_ID")
-    private int leadsId;
+    private Integer leadsId;
+    @JsonBackReference(value = "ldPhoneLists")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "Leads_ID", insertable = false, updatable = false)
+    private Lead leadsPhoneList;
+
 
     @Column(name = "CL_ID")
     private Integer clientID;
@@ -53,13 +58,20 @@ public class PhoneList implements Serializable {
 
     }
 
-    public PhoneList(int phoneID, String number, int clientID, int userCode, int contactID, int leadsId) {
-        this.phoneID = phoneID;
-        this.number = number;
-        this.clientID = clientID;
-        this.userCode = userCode;
-        this.contactID = contactID;
+    public Integer getLeadsId() {
+        return leadsId;
+    }
+
+    public void setLeadsId(Integer leadsId) {
         this.leadsId = leadsId;
+    }
+
+    public Lead getLeadsPhoneList() {
+        return leadsPhoneList;
+    }
+
+    public void setLeadsPhoneList(Lead leadsPhoneList) {
+        this.leadsPhoneList = leadsPhoneList;
     }
 
     public Users getUsers() {
@@ -126,24 +138,19 @@ public class PhoneList implements Serializable {
         this.contactID = contactID;
     }
 
-    public int getLeadsId() {
-        return leadsId;
-    }
-
-    public void setLeadsId(int leadsId) {
-        this.leadsId = leadsId;
-    }
-
     @Override
     public String toString() {
         return "PhoneList{" +
                 "phoneID=" + phoneID +
                 ", number='" + number + '\'' +
-                ", clientID=" + clientID +
-//                ", client=" + client +
                 ", userCode=" + userCode +
-                ", contactID=" + contactID +
+                ", users=" + users +
                 ", leadsId=" + leadsId +
+                ", leadsPhoneList=" + leadsPhoneList +
+                ", clientID=" + clientID +
+                ", clientPhoneList=" + clientPhoneList +
+                ", contactID=" + contactID +
+                ", contactPhoneList=" + contactPhoneList +
                 '}';
     }
 }

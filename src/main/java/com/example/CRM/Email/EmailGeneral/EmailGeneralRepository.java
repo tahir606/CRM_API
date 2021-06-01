@@ -10,4 +10,5 @@ import java.util.List;
 public interface EmailGeneralRepository extends EmailRepository<EmailGeneral> {
 
     List<EmailGeneral> findAllByFreezeOrderByCodeDesc(int freeze);
+
 }

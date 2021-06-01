@@ -1,5 +1,6 @@
 package com.example.CRM.Email.EmailList;
 
+import com.example.CRM.Product.ProductModule;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -14,10 +15,12 @@ import java.util.Map;
 public class EmailListCustomQuery {
     @PersistenceContext
     private EntityManager entityManager;
-    public void updateEmailList(String name){
-        Query query = entityManager.createQuery("update email_list set name = :name");
-        query.setParameter("name",name);
-        query.executeUpdate();
+    public int updateEmailList(EmailList emailList){
+        Query query = entityManager.createQuery("update email_list set clientID=:clientId where emailID=:emailId");
+        query.setParameter("emailId", emailList.getEmailID());
+        query.setParameter("clientId", emailList.getClientID());
+
+        return query.executeUpdate();
     }
 
     public List<String> getEmailAddress() {
@@ -31,4 +34,5 @@ public class EmailListCustomQuery {
         query.executeUpdate();
 
     }
+
 }

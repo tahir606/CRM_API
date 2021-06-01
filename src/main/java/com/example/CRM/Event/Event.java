@@ -1,16 +1,22 @@
 package com.example.CRM.Event;
 
 import com.example.CRM.Client.Client;
+import com.example.CRM.LeadStore.Lead;
+import com.example.CRM.Product.Store.Product;
 import com.example.CRM.User.Users;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
 import java.sql.Timestamp;
 
-@Entity
-@Table(name = "event_store")
+@Entity(name = "event_store")
+@Table
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property  = "eventID",
+//        scope     = Integer.class)
 public class Event  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -30,15 +36,6 @@ public class Event  implements Serializable {
     private String description;
     @Column(name = "notified")
     private int notified;
-    @Column(name = "leadsId")
-    private int leadsId;
-    @Column(name = "productID")
-    private int productID;
-    @Column(name = "createdBy")
-    private int createdBy;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "createdBy", insertable = false, updatable = false)
-    private Users users;
     @Column(name = "CreatedOn")
     private Timestamp createdOn;
     @Column(name = "Freeze")
@@ -47,6 +44,21 @@ public class Event  implements Serializable {
     private Timestamp closedOn;
     @Column(name = "status")
     private int status;
+
+    @Column(name = "createdBy")
+    private int createdBy;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "createdBy", insertable = false, updatable = false)
+    private Users users;
+
+    @Column(name = "productID")
+    private Integer productID;
+    @JsonBackReference(value = "pdEventList")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "productID", insertable = false, updatable = false)
+    private Product productEventList;
+
+
     @Column(name = "CL_ID")
     private Integer clientID;
     @JsonBackReference(value = "clEventList")
@@ -54,11 +66,41 @@ public class Event  implements Serializable {
     @JoinColumn(name = "CL_ID", insertable = false, updatable = false)
     private Client clientEventList;
 
+    @Column(name = "leadsId")
+    private Integer leadsId;
+    @JsonBackReference(value = "ldEventList")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "leadsId", insertable = false, updatable = false)
+    private Lead leadsEventList;
+
 
     public Event(){
 
     }
 
+    public Integer getProductID() {
+        return productID;
+    }
+
+    public void setProductID(Integer productID) {
+        this.productID = productID;
+    }
+
+    public Integer getClientID() {
+        return clientID;
+    }
+
+    public void setClientID(Integer clientID) {
+        this.clientID = clientID;
+    }
+
+    public Integer getLeadsId() {
+        return leadsId;
+    }
+
+    public void setLeadsId(Integer leadsId) {
+        this.leadsId = leadsId;
+    }
 
     public Users getUsers() {
         return users;
@@ -132,30 +174,6 @@ public class Event  implements Serializable {
         this.notified = notified;
     }
 
-    public Integer getClientID() {
-        return clientID;
-    }
-
-    public void setClientID(Integer clientID) {
-        this.clientID = clientID;
-    }
-
-    public int getLeadsId() {
-        return leadsId;
-    }
-
-    public void setLeadsId(int leadsId) {
-        this.leadsId = leadsId;
-    }
-
-    public int getProductID() {
-        return productID;
-    }
-
-    public void setProductID(int productID) {
-        this.productID = productID;
-    }
-
     public int getCreatedBy() {
         return createdBy;
     }
@@ -204,6 +222,25 @@ public class Event  implements Serializable {
         this.clientEventList = clientEventList;
     }
 
+
+    public Product getProductEventList() {
+        return productEventList;
+    }
+
+    public void setProductEventList(Product productEventList) {
+        this.productEventList = productEventList;
+    }
+
+    public Lead getLeadsEventList() {
+        return leadsEventList;
+    }
+
+    public void setLeadsEventList(Lead leadsEventList) {
+        this.leadsEventList = leadsEventList;
+    }
+
+
+
     @Override
     public String toString() {
         return "Event{" +
@@ -215,15 +252,18 @@ public class Event  implements Serializable {
                 ", to=" + to +
                 ", description='" + description + '\'' +
                 ", notified=" + notified +
-                ", leadsId=" + leadsId +
-                ", productID=" + productID +
                 ", createdBy=" + createdBy +
+                ", users=" + users +
                 ", createdOn=" + createdOn +
                 ", freeze=" + freeze +
                 ", closedOn=" + closedOn +
                 ", status=" + status +
+                ", productID=" + productID +
+                ", productEventList=" + productEventList +
                 ", clientID=" + clientID +
                 ", clientEventList=" + clientEventList +
+                ", leadsId=" + leadsId +
+                ", leadsEventList=" + leadsEventList +
                 '}';
     }
 }

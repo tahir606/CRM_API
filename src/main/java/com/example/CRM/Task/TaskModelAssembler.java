@@ -14,7 +14,7 @@ public class TaskModelAssembler  implements RepresentationModelAssembler<Task , 
     @Override
     public EntityModel<Task> toModel(Task entity) {
         return EntityModel.of(entity, //
-                WebMvcLinkBuilder.linkTo(methodOn(TaskController.class).one( entity.getTaskID())).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(methodOn(TaskController.class).one(entity.getTaskID())).withSelfRel(),
                 linkTo(methodOn(TaskController.class).all()).withRel("task_store"));
     }
 }

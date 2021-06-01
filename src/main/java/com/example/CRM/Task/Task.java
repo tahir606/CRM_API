@@ -1,16 +1,22 @@
 package com.example.CRM.Task;
 
 import com.example.CRM.Client.Client;
+import com.example.CRM.LeadStore.Lead;
+import com.example.CRM.Product.Store.Product;
 import com.example.CRM.User.Users;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
 import java.sql.Timestamp;
 
-@Entity
-@Table(name = "task_store")
+@Entity(name = "task_store")
+@Table
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property  = "taskID",
+//        scope     = Integer.class)
 public class Task  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,28 +39,85 @@ public class Task  implements Serializable {
     @Column(name = "notified")
     private int notified;
     @Column(name = "contactID")
-    private int contactID;
+    private Integer contactID;
+    @Column(name = "createdOn")
+    private Timestamp createdOn;
+    @Column(name = "freeze")
+    private int freeze;
+
+
     @Column(name = "psID")
-    private int psID;
-    @Column(name = "leadsId")
-    private int leadsId;
+    private Integer psID;
+    @JsonBackReference(value = "pdTaskList")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "psID", insertable = false, updatable = false)
+    private Product productTaskList;
+
     @Column(name = "createdBy")
     private int createdBy;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "createdBy", insertable = false, updatable = false)
     private Users users;
-    @Column(name = "createdOn")
-    private Timestamp createdOn;
-    @Column(name = "freeze")
-    private int freeze;
+
+    @Column(name = "leadsId")
+    private Integer leadsId;
+    @JsonBackReference(value = "ldTaskList")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "leadsId", insertable = false, updatable = false)
+    private Lead leadsTaskList;
+
     @Column(name = "CL_ID")
     private Integer clientID;
     @JsonBackReference(value = "clTaskList")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "CL_ID", insertable = false, updatable = false)
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "CL_ID",insertable = false, updatable = false)
     private Client clientTaskList;
+
+
     public Task(){
 
+    }
+
+    public Integer getContactID() {
+        return contactID;
+    }
+
+    public void setContactID(Integer contactID) {
+        this.contactID = contactID;
+    }
+
+    public Integer getLeadsId() {
+        return leadsId;
+    }
+
+    public void setLeadsId(Integer leadsId) {
+        this.leadsId = leadsId;
+    }
+
+    public Product getProductTaskList() {
+        return productTaskList;
+    }
+
+    public void setProductTaskList(Product productTaskList) {
+        this.productTaskList = productTaskList;
+    }
+
+
+
+    public Lead getLeadsTaskList() {
+        return leadsTaskList;
+    }
+
+    public void setLeadsTaskList(Lead leadsTaskList) {
+        this.leadsTaskList = leadsTaskList;
+    }
+
+    public Client getClientTaskList() {
+        return clientTaskList;
+    }
+
+    public void setClientTaskList(Client clientTaskList) {
+        this.clientTaskList = clientTaskList;
     }
 
     public Users getUsers() {
@@ -137,13 +200,7 @@ public class Task  implements Serializable {
         this.notified = notified;
     }
 
-    public int getContactID() {
-        return contactID;
-    }
 
-    public void setContactID(int contactID) {
-        this.contactID = contactID;
-    }
 
     public Integer getClientID() {
         return clientID;
@@ -153,21 +210,14 @@ public class Task  implements Serializable {
         this.clientID = clientID;
     }
 
-    public int getPsID() {
+    public Integer getPsID() {
         return psID;
     }
 
-    public void setPsID(int psID) {
+    public void setPsID(Integer psID) {
         this.psID = psID;
     }
 
-    public int getLeadsId() {
-        return leadsId;
-    }
-
-    public void setLeadsId(int leadsId) {
-        this.leadsId = leadsId;
-    }
 
     public int getCreatedBy() {
         return createdBy;
@@ -193,33 +243,29 @@ public class Task  implements Serializable {
         this.freeze = freeze;
     }
 
-    public Client getClientTaskList() {
-        return clientTaskList;
-    }
-
-    public void setClientTaskList(Client clientTaskList) {
-        this.clientTaskList = clientTaskList;
-    }
-
     @Override
     public String toString() {
         return "Task{" +
                 "taskID=" + taskID +
-                ", taskSubject='" + subject + '\'' +
-                ", taskEntryDate=" + entryDate +
-                ", taskDueDate=" + dueDate +
-                ", taskRepeat=" + repeat +
-                ", taskDescription=" + description +
-                ", taskStatus=" + status +
-                ", taskClosedOn=" + closedOn +
-                ", taskNotified=" + notified +
+                ", subject='" + subject + '\'' +
+                ", entryDate=" + entryDate +
+                ", dueDate=" + dueDate +
+                ", repeat=" + repeat +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", closedOn=" + closedOn +
+                ", notified=" + notified +
                 ", contactID=" + contactID +
-                ", clientID=" + clientID +
+                ", createdOn=" + createdOn +
+                ", freeze=" + freeze +
                 ", psID=" + psID +
+                ", productTaskList=" + productTaskList +
+                ", createdBy=" + createdBy +
+                ", users=" + users +
                 ", leadsId=" + leadsId +
-                ", taskCreatedBy=" + createdBy +
-                ", taskCreatedOn=" + createdOn +
-                ", taskFreeze=" + freeze +
+                ", leadsTaskList=" + leadsTaskList +
+                ", clientID=" + clientID +
+                ", clientTaskList=" + clientTaskList +
                 '}';
     }
 }

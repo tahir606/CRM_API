@@ -2,10 +2,12 @@ package com.example.CRM.Client;
 
 import com.example.CRM.Email.EmailList.EmailList;
 import com.example.CRM.Event.Event;
+import com.example.CRM.LeadStore.Lead;
 import com.example.CRM.Note.Note;
 import com.example.CRM.Phone.PhoneList;
 import com.example.CRM.Task.Task;
 import com.example.CRM.User.Users;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -48,10 +50,17 @@ public class Client implements Serializable {
     private Timestamp bicycle;
     @Column(name = "Cl_Type")
     private int type;
-    @Column(name = "From_Lead")
-    private int fromLead;
+
+    @Column(name = "Leads_ID")
+    private Integer fromLead;
+    @JsonBackReference(value = "ldClientList")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "Leads_ID", insertable = false, updatable = false)
+    private Lead leadsClientList;
+
     @Column(name = "availableCount")
     private Long availableCount;
+
     @Column(name = "Created_By")
     private int createdBy;
     @ManyToOne(cascade = CascadeType.ALL)
@@ -90,6 +99,16 @@ public class Client implements Serializable {
         this.name = name;
         this.owner = owner;
         this.availableCount = availableCount;
+    }
+
+
+
+    public Lead getLeadsClientList() {
+        return leadsClientList;
+    }
+
+    public void setLeadsClientList(Lead leadsClientList) {
+        this.leadsClientList = leadsClientList;
     }
 
     public Long getAvailableCount() {
@@ -253,13 +272,6 @@ public class Client implements Serializable {
         this.type = type;
     }
 
-    public int getFromLead() {
-        return fromLead;
-    }
-
-    public void setFromLead(int fromLead) {
-        this.fromLead = fromLead;
-    }
 
     public int getCreatedBy() {
         return createdBy;
@@ -267,6 +279,14 @@ public class Client implements Serializable {
 
     public void setCreatedBy(int createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public Integer getFromLead() {
+        return fromLead;
+    }
+
+    public void setFromLead(Integer fromLead) {
+        this.fromLead = fromLead;
     }
 
     @Override
@@ -285,9 +305,16 @@ public class Client implements Serializable {
                 ", bicycle=" + bicycle +
                 ", type=" + type +
                 ", fromLead=" + fromLead +
+                ", leadsClientList=" + leadsClientList +
+                ", availableCount=" + availableCount +
                 ", createdBy=" + createdBy +
                 ", users=" + users +
                 ", createdOn=" + createdOn +
+                ", clEmailLists=" + clEmailLists +
+                ", clPhoneLists=" + clPhoneLists +
+                ", clNoteList=" + clNoteList +
+                ", clTaskList=" + clTaskList +
+                ", clEventList=" + clEventList +
                 '}';
     }
 }
